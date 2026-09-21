@@ -111,7 +111,7 @@ Contributions are welcome. Please feel free to submit a Pull Request.
 
 ## License
 
-This project is open source and available under the [MIT License](https://opensource.org/licenses/MIT).
+This project is open source and available under GNU GENERAL PUBLIC LICENSE Version 3(https://www.gnu.org/licenses/gpl-3.0.en.html).
 
 ## Acknowledgements
 
