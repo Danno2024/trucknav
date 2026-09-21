@@ -136,6 +136,17 @@
 
                 <hr class="my-4">
 
+                <div class="mb-4">
+                    <button type="button" id="report-hazard-btn"
+                        class="w-full inline-flex items-center justify-center px-4 py-2 bg-amber-600 border border-transparent rounded-lg font-semibold text-sm text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                        Report Hazard
+                    </button>
+                    <p id="hazard-mode-hint" class="hidden text-xs text-amber-700 mt-2 text-center font-medium">Click on the map to place a hazard pin</p>
+                </div>
+
                 <div id="route-summary" class="hidden mb-4">
                     <h3 class="text-sm font-semibold text-gray-900 mb-3">Route Summary</h3>
                     <div class="grid grid-cols-2 gap-3">
@@ -167,13 +178,22 @@
                 <div id="route-success" class="hidden mb-4 bg-green-50 text-green-700 text-sm p-3 rounded-lg"></div>
 
                 <div id="route-actions" class="hidden">
-                    <button type="button" id="save-route-btn"
-                        class="w-full inline-flex items-center justify-center px-4 py-2 bg-maroon-700 border border-transparent rounded-lg font-semibold text-sm text-white hover:bg-maroon-800 focus:outline-none focus:ring-2 focus:ring-maroon-500 focus:ring-offset-2 transition">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                        </svg>
-                        Save Route
-                    </button>
+                    <div class="flex gap-2 mb-2">
+                        <button type="button" id="save-route-btn"
+                            class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-maroon-700 border border-transparent rounded-lg font-semibold text-sm text-white hover:bg-maroon-800 focus:outline-none focus:ring-2 focus:ring-maroon-500 focus:ring-offset-2 transition">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                            </svg>
+                            Save
+                        </button>
+                        <button type="button" id="print-route-btn"
+                            class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-gray-700 border border-transparent rounded-lg font-semibold text-sm text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                            </svg>
+                            Print
+                        </button>
+                    </div>
                 </div>
 
                 <p class="text-xs text-gray-400 mt-4 text-center">Tip: Click on the map to set origin and destination points</p>
@@ -208,8 +228,66 @@
         </div>
     </div>
 
+    <div id="hazard-modal" class="fixed inset-0 hidden" style="z-index: 10000;">
+        <div class="absolute inset-0 bg-black/50" id="hazard-modal-backdrop"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-6 w-full max-w-md" style="z-index: 10001;">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">Report Hazard</h3>
+            <div id="hazard-address-display" class="mb-3 text-sm text-gray-500 italic">Click on the map to set location...</div>
+            <div class="mb-3">
+                <label for="hazard-type" class="block text-sm font-medium text-gray-700 mb-1">Hazard Type</label>
+                <select id="hazard-type" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
+                    <option value="low_bridge">Low Bridge</option>
+                    <option value="weight_limit">Weight Restriction</option>
+                    <option value="height_limit">Height Restriction</option>
+                    <option value="width_limit">Width Restriction</option>
+                    <option value="road_ban">Road Ban</option>
+                    <option value="rough_road">Rough Road</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="hazard-severity" class="block text-sm font-medium text-gray-700 mb-1">Severity</label>
+                <select id="hazard-severity" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
+                    <option value="medium" selected>Medium</option>
+                    <option value="low">Low</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="hazard-limit" class="block text-sm font-medium text-gray-700 mb-1">Limit Value (optional)</label>
+                <input type="text" id="hazard-limit" placeholder="e.g. 4.2 (for 4.2m height)"
+                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
+            </div>
+            <div class="mb-4">
+                <label for="hazard-description" class="block text-sm font-medium text-gray-700 mb-1">Additional Details (optional)</label>
+                <textarea id="hazard-description" rows="2" placeholder="e.g. Underpass on main road, partially hidden..."
+                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm"></textarea>
+            </div>
+            <div id="hazard-modal-error" class="hidden mb-4 bg-red-50 text-red-700 text-sm p-3 rounded-lg"></div>
+            <div id="hazard-modal-success" class="hidden mb-4 bg-green-50 text-green-700 text-sm p-3 rounded-lg"></div>
+            <div class="flex gap-3">
+                <button type="button" id="hazard-modal-cancel"
+                    class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-300 transition">
+                    Cancel
+                </button>
+                <button type="button" id="hazard-modal-confirm"
+                    class="flex-1 px-4 py-2 bg-amber-600 text-white rounded-lg font-semibold text-sm hover:bg-amber-700 transition">
+                    Submit Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="print-container" class="hidden"></div>
+
     <script>
         window.__restrictions = {!! json_encode($restrictions->toArray()) !!};
+        window.__saveUrl = '{{ url("/planner/save") }}';
+        window.__reportRestrictionUrl = '{{ url("/planner/report-restriction") }}';
+        window.__savedRoute = {!! $savedRoute ? json_encode($savedRoute) : 'null' !!};
         console.log('[TruckNav] Restrictions from server:', window.__restrictions.length, window.__restrictions);
+        console.log('[TruckNav] Save URL:', window.__saveUrl);
+        console.log('[TruckNav] Saved route to load:', window.__savedRoute ? window.__savedRoute.name : 'none');
     </script>
 </x-app-layout>

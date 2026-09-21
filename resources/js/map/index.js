@@ -136,8 +136,9 @@ export function addRestrictionMarker(restriction) {
             <br><small>${restriction.description || 'No description'}</small>
             <br><small style="color: ${restriction.verified ? '#16a34a' : '#d97706'};">
                 ${restriction.verified ? 'Verified' : 'Unverified'}
-                (${restriction.verification_count} confirmations)
+                (${restriction.verification_count} confirmation${restriction.verification_count !== 1 ? 's' : ''})
             </small>
+            ${!restriction.verified ? `<br><button class="verify-hazard-btn mt-2 px-3 py-1 bg-green-600 text-white text-xs font-semibold rounded hover:bg-green-700 cursor-pointer" data-restriction-id="${restriction.id}">Verify</button>` : ''}
         </div>
     `;
 

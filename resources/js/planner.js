@@ -1,5 +1,5 @@
 import L from 'leaflet';
-import { initMap, drawRoute, addMarker, addRestrictionMarker, clearMarkers, setView } from './map/index.js';
+import { initMap, drawRoute, addMarker, addRestrictionMarker, clearMarkers, setView, getMap } from './map/index.js';
 import { geocode, reverseGeocode } from './map/geocoding.js';
 import { getRoute, formatDistance, formatDuration } from './map/routing.js';
 import { checkRouteForRestrictions } from './map/restrictions.js';
@@ -10,6 +10,8 @@ let destinationMarker = null;
 let waypointMarkers = [];
 let currentRoute = null;
 let waypoints = [];
+let hazardMode = false;
+let hazardPin = null;
 let vehicleProfile = {
     type: 'truck',
     weight_kg: null,
@@ -47,7 +49,14 @@ document.addEventListener('DOMContentLoaded', () => {
     initVehicleProfile();
     initMapClick();
     initSaveRoute();
+    initHazardReporting();
+    initPrintRoute();
     loadRestrictions();
+    initVerifyRestrictions();
+
+    if (window.__savedRoute) {
+        loadSavedRoute(window.__savedRoute);
+    }
 });
 
 function initOriginSearch() {
@@ -360,6 +369,7 @@ function initVehicleProfile() {
 
 function initMapClick() {
     map.on('click', (e) => {
+        if (hazardMode) return;
         const { lat, lng } = e.latlng;
 
         if (!originMarker) {
@@ -603,7 +613,9 @@ function initSaveRoute() {
 
         try {
             const token = document.querySelector('meta[name="csrf-token"]').content;
-            const response = await fetch('/planner/save', {
+            const saveUrl = window.__saveUrl || '/planner/save';
+            console.log('[TruckNav] Saving to:', saveUrl);
+            const response = await fetch(saveUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -703,4 +715,511 @@ function hideRestrictionWarnings() {
         container.innerHTML = '';
         container.classList.add('hidden');
     }
+}
+
+function loadSavedRoute(route) {
+    console.log('[TruckNav] Loading saved route:', route.name);
+
+    const originIcon = L.divIcon({
+        className: 'origin-marker',
+        html: `<div style="width:32px;height:32px;background:#16a34a;border:3px solid white;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.4);"><span style="color:white;font-size:16px;font-weight:bold;">A</span></div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -18],
+    });
+
+    const destIcon = L.divIcon({
+        className: 'destination-marker',
+        html: `<div style="width:32px;height:32px;background:#dc2626;border:3px solid white;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.4);"><span style="color:white;font-size:16px;font-weight:bold;">B</span></div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -18],
+    });
+
+    originMarker = L.marker([route.origin_lat, route.origin_lng], { icon: originIcon, draggable: true })
+        .bindPopup('<strong>Origin</strong>')
+        .addTo(map);
+
+    originMarker.on('dragend', (e) => {
+        const pos = e.target.getLatLng();
+        reverseGeocode(pos.lat, pos.lng).then((rev) => {
+            document.getElementById('origin-search').value = rev.displayName;
+        });
+    });
+
+    destinationMarker = L.marker([route.destination_lat, route.destination_lng], { icon: destIcon, draggable: true })
+        .bindPopup('<strong>Destination</strong>')
+        .addTo(map);
+
+    destinationMarker.on('dragend', (e) => {
+        const pos = e.target.getLatLng();
+        reverseGeocode(pos.lat, pos.lng).then((rev) => {
+            document.getElementById('destination-search').value = rev.displayName;
+        });
+    });
+
+    document.getElementById('origin-search').value = route.origin_address;
+    document.getElementById('destination-search').value = route.destination_address;
+
+    if (route.waypoints && Array.isArray(route.waypoints)) {
+        const list = document.getElementById('waypoints-list');
+        route.waypoints.forEach((wp, i) => {
+            waypoints.push({ lat: wp.lat, lng: wp.lng, address: wp.address });
+
+            const wpIcon = L.divIcon({
+                className: 'waypoint-marker',
+                html: `<div style="width:24px;height:24px;background:#1d4ed8;border:2px solid white;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.3);color:white;font-size:12px;font-weight:bold;">${i + 1}</div>`,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12],
+                popupAnchor: [0, -14],
+            });
+
+            const marker = L.marker([wp.lat, wp.lng], { icon: wpIcon })
+                .bindPopup(`<strong>Stop ${i + 1}</strong><br>${wp.address}`)
+                .addTo(map);
+
+            waypointMarkers.push(marker);
+        });
+        renderWaypointsList(list);
+    }
+
+    if (route.vehicle_type) {
+        document.getElementById('vehicle-type').value = route.vehicle_type;
+        vehicleProfile.type = route.vehicle_type;
+    }
+    if (route.vehicle_weight_kg) {
+        document.getElementById('vehicle-weight').value = route.vehicle_weight_kg;
+        vehicleProfile.weight_kg = route.vehicle_weight_kg;
+    }
+    if (route.vehicle_height_m) {
+        document.getElementById('vehicle-height').value = route.vehicle_height_m;
+        vehicleProfile.height_m = route.vehicle_height_m;
+    }
+    if (route.vehicle_width_m) {
+        document.getElementById('vehicle-width').value = route.vehicle_width_m;
+        vehicleProfile.width_m = route.vehicle_width_m;
+    }
+    if (route.vehicle_length_m) {
+        document.getElementById('vehicle-length').value = route.vehicle_length_m;
+        vehicleProfile.length_m = route.vehicle_length_m;
+    }
+
+    const allLats = [route.origin_lat, route.destination_lat];
+    const allLngs = [route.origin_lng, route.destination_lng];
+    if (route.waypoints) {
+        route.waypoints.forEach(wp => {
+            allLats.push(wp.lat);
+            allLngs.push(wp.lng);
+        });
+    }
+    const bounds = L.latLngBounds(allLats.map((lat, i) => [lat, allLngs[i]]));
+    map.fitBounds(bounds, { padding: [50, 50] });
+
+    tryAutoRoute();
+}
+
+function initHazardReporting() {
+    const reportBtn = document.getElementById('report-hazard-btn');
+    const hint = document.getElementById('hazard-mode-hint');
+    const modal = document.getElementById('hazard-modal');
+    const backdrop = document.getElementById('hazard-modal-backdrop');
+    const cancelBtn = document.getElementById('hazard-modal-cancel');
+    const confirmBtn = document.getElementById('hazard-modal-confirm');
+    const addressDisplay = document.getElementById('hazard-address-display');
+    const modalError = document.getElementById('hazard-modal-error');
+    const modalSuccess = document.getElementById('hazard-modal-success');
+    const typeSelect = document.getElementById('hazard-type');
+    const severitySelect = document.getElementById('hazard-severity');
+    const limitInput = document.getElementById('hazard-limit');
+    const descInput = document.getElementById('hazard-description');
+
+    if (!reportBtn || !modal) return;
+
+    reportBtn.addEventListener('click', () => {
+        hazardMode = !hazardMode;
+        if (hazardMode) {
+            reportBtn.classList.remove('bg-amber-600', 'hover:bg-amber-700');
+            reportBtn.classList.add('bg-red-600', 'hover:bg-red-700');
+            reportBtn.innerHTML = `
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Cancel Reporting`;
+            hint.classList.remove('hidden');
+            map.getContainer().style.cursor = 'crosshair';
+        } else {
+            exitHazardMode();
+        }
+    });
+
+    function exitHazardMode() {
+        hazardMode = false;
+        reportBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
+        reportBtn.classList.add('bg-amber-600', 'hover:bg-amber-700');
+        reportBtn.innerHTML = `
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            Report Hazard`;
+        hint.classList.add('hidden');
+        map.getContainer().style.cursor = '';
+        if (hazardPin) {
+            map.removeLayer(hazardPin);
+            hazardPin = null;
+        }
+    }
+
+    map.on('click', function handleHazardClick(e) {
+        if (!hazardMode) return;
+
+        if (hazardPin) map.removeLayer(hazardPin);
+
+        const hazardIcon = L.divIcon({
+            className: 'hazard-pin',
+            html: `<div style="width:30px;height:30px;background:#f59e0b;border:3px solid white;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.4);">
+                <svg style="width:16px;height:16px;color:white;" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+            </div>`,
+            iconSize: [30, 30],
+            iconAnchor: [15, 15],
+            popupAnchor: [0, -17],
+        });
+
+        hazardPin = L.marker([e.latlng.lat, e.latlng.lng], { icon: hazardIcon })
+            .addTo(map);
+
+        addressDisplay.textContent = 'Loading address...';
+        reverseGeocode(e.latlng.lat, e.latlng.lng).then((rev) => {
+            addressDisplay.textContent = rev.displayName;
+        }).catch(() => {
+            addressDisplay.textContent = `${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
+        });
+
+        openModal();
+    });
+
+    function openModal() {
+        modalError.classList.add('hidden');
+        modalSuccess.classList.add('hidden');
+        limitInput.value = '';
+        descInput.value = '';
+        modal.classList.remove('hidden');
+        typeSelect.focus();
+    }
+
+    function closeModal() {
+        modal.classList.add('hidden');
+        exitHazardMode();
+    }
+
+    cancelBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+
+    confirmBtn.addEventListener('click', async () => {
+        if (!hazardPin) {
+            modalError.textContent = 'Please click on the map to place a hazard pin.';
+            modalError.classList.remove('hidden');
+            return;
+        }
+
+        const latlng = hazardPin.getLatLng();
+        const limitVal = limitInput.value.trim();
+
+        let description = descInput.value.trim();
+        if (limitVal) {
+            description = limitVal + (description ? ' - ' + description : '');
+        }
+
+        const payload = {
+            restriction_type: typeSelect.value,
+            address: addressDisplay.textContent,
+            latitude: latlng.lat,
+            longitude: latlng.lng,
+            severity: severitySelect.value,
+            description: description || null,
+        };
+
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Submitting...';
+        modalError.classList.add('hidden');
+
+        try {
+            const token = document.querySelector('meta[name="csrf-token"]').content;
+            const url = window.__reportRestrictionUrl || '/planner/report-restriction';
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                modalSuccess.textContent = 'Hazard reported! Thank you for helping other drivers.';
+                modalSuccess.classList.remove('hidden');
+
+                const newRestriction = {
+                    id: data.restriction.id,
+                    restriction_type: payload.restriction_type,
+                    address: payload.address,
+                    latitude: payload.latitude,
+                    longitude: payload.longitude,
+                    severity: payload.severity,
+                    description: payload.description,
+                    verified: false,
+                    verification_count: 1,
+                    status: 'active',
+                };
+
+                window.__restrictions.push(newRestriction);
+                addRestrictionMarker(newRestriction);
+
+                setTimeout(() => {
+                    closeModal();
+                }, 1500);
+
+                recheckRestrictions();
+            } else {
+                const errorMsg = data.errors
+                    ? Object.values(data.errors).flat().join(', ')
+                    : (data.message || 'Failed to submit report.');
+                modalError.textContent = errorMsg;
+                modalError.classList.remove('hidden');
+            }
+        } catch (err) {
+            console.error('Hazard report error:', err);
+            modalError.textContent = 'Error submitting report. Please try again.';
+            modalError.classList.remove('hidden');
+        } finally {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = 'Submit Report';
+        }
+    });
+}
+
+function initPrintRoute() {
+    const printBtn = document.getElementById('print-route-btn');
+    if (!printBtn) return;
+
+    printBtn.addEventListener('click', () => {
+        if (!currentRoute) {
+            showRouteError('Please plan a route first.');
+            return;
+        }
+
+        const originInput = document.getElementById('origin-search');
+        const destInput = document.getElementById('destination-search');
+        const originName = originInput ? originInput.value : 'Origin';
+        const destName = destInput ? destInput.value : 'Destination';
+        const distance = formatDistance(currentRoute.distance);
+        const duration = formatDuration(currentRoute.duration);
+
+        let directions = [];
+        if (currentRoute.legs) {
+            currentRoute.legs.forEach((leg, legIdx) => {
+                leg.steps.forEach(step => {
+                    directions.push(step);
+                });
+            });
+        }
+
+        function formatInstruction(type, modifier, name) {
+            const turnMap = {
+                'turn': modifier ? `Turn ${modifier}` : 'Turn',
+                'new name': 'Continue onto',
+                'depart': 'Depart',
+                'arrive': 'Arrive at destination',
+                'merge': modifier ? `Merge ${modifier}` : 'Merge',
+                'roundabout': 'At roundabout',
+                'exit roundabout': 'Exit roundabout',
+                'fork': modifier ? `Keep ${modifier}` : 'Continue',
+                'end of road': modifier ? `At end of road, turn ${modifier}` : 'Continue',
+                'continue': modifier ? `Continue ${modifier}` : 'Continue',
+            };
+
+            let instruction = turnMap[type] || type;
+            if (name) {
+                instruction += ` onto ${name}`;
+            }
+            return instruction;
+        }
+
+        const warnings = [];
+        const warningContainer = document.getElementById('route-warnings');
+        if (warningContainer && !warningContainer.classList.contains('hidden')) {
+            const warningEls = warningContainer.querySelectorAll('[class*="border-l-4"]');
+            warningEls.forEach(el => {
+                const text = el.textContent.trim();
+                if (text) warnings.push(text);
+            });
+        }
+
+        let directionsHTML = '';
+        directions.forEach((step, i) => {
+            const instruction = formatInstruction(step.instruction, step.modifier, step.name);
+            const stepDist = formatDistance(step.distance);
+            const stepDur = formatDuration(step.duration);
+            directionsHTML += `
+                <tr class="border-b border-gray-200">
+                    <td class="py-2 pr-3 text-sm text-gray-500 w-8 text-center">${i + 1}</td>
+                    <td class="py-2 text-sm text-gray-900">${instruction}</td>
+                    <td class="py-2 text-sm text-gray-600 text-right whitespace-nowrap">${stepDist}</td>
+                    <td class="py-2 text-sm text-gray-600 text-right whitespace-nowrap">${stepDur}</td>
+                </tr>`;
+        });
+
+        const warningsHTML = warnings.length > 0 ? `
+            <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded">
+                <h4 class="font-bold text-red-800 text-sm mb-1">Hazards on Route</h4>
+                <ul class="text-sm text-red-700 list-disc list-inside">${warnings.map(w => `<li>${w}</li>`).join('')}</ul>
+            </div>` : '';
+
+        const vehicleParts = [];
+        if (vehicleProfile.height_m) vehicleParts.push(`H: ${vehicleProfile.height_m}m`);
+        if (vehicleProfile.width_m) vehicleParts.push(`W: ${vehicleProfile.width_m}m`);
+        if (vehicleProfile.length_m) vehicleParts.push(`L: ${vehicleProfile.length_m}m`);
+        if (vehicleProfile.weight_kg) vehicleParts.push(`${vehicleProfile.weight_kg}kg`);
+        const vehicleStr = vehicleParts.length > 0 ? ` (${vehicleParts.join(', ')})` : '';
+
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
+        const timeStr = now.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+
+        const printHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TruckNav Route Directions</title>
+    <style>
+        body { font-family: 'Inter', Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; color: #111; }
+        h1 { color: #ab1d44; font-size: 22px; margin-bottom: 4px; }
+        .subtitle { color: #666; font-size: 13px; margin-bottom: 20px; }
+        .summary { display: flex; gap: 24px; margin-bottom: 20px; padding: 12px; background: #fdf2f8; border-radius: 8px; }
+        .summary-item { text-align: center; }
+        .summary-value { font-size: 18px; font-weight: bold; color: #ab1d44; }
+        .summary-label { font-size: 11px; color: #666; }
+        .route-info { margin-bottom: 20px; }
+        .route-info p { margin: 4px 0; font-size: 14px; }
+        .route-info strong { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th { background: #ab1d44; color: white; text-align: left; padding: 8px; font-size: 13px; }
+        .footer { margin-top: 30px; text-align: center; font-size: 11px; color: #999; border-top: 1px solid #ddd; padding-top: 10px; }
+        @media print { body { padding: 10px; } }
+    </style>
+</head>
+<body>
+    <h1>TruckNav - Route Directions</h1>
+    <div class="subtitle">Printed ${dateStr} at ${timeStr}</div>
+
+    <div class="route-info">
+        <p><strong>From:</strong> ${originName}</p>
+        <p><strong>To:</strong> ${destName}</p>
+        ${vehicleStr ? `<p><strong>Vehicle:</strong> ${vehicleProfile.type}${vehicleStr}</p>` : ''}
+    </div>
+
+    <div class="summary">
+        <div class="summary-item">
+            <div class="summary-value">${distance}</div>
+            <div class="summary-label">Distance</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-value">${duration}</div>
+            <div class="summary-label">Est. Duration</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-value">${directions.length}</div>
+            <div class="summary-label">Steps</div>
+        </div>
+    </div>
+
+    ${warningsHTML}
+
+    <table>
+        <thead>
+            <tr>
+                <th class="w-8">#</th>
+                <th>Direction</th>
+                <th class="text-right">Distance</th>
+                <th class="text-right">Duration</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${directionsHTML}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <strong>TruckNav</strong> - Heavy Vehicle Route Planning for Australia<br>
+        Drive safe. Check actual road conditions before travel.<br>
+        Powered by Moorcam
+    </div>
+</body>
+</html>`;
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(printHTML);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+            printWindow.print();
+        }, 500);
+    });
+}
+
+function initVerifyRestrictions() {
+    document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.verify-hazard-btn');
+        if (!btn) return;
+
+        const restrictionId = btn.dataset.restrictionId;
+        if (!restrictionId) return;
+
+        btn.disabled = true;
+        btn.textContent = 'Verifying...';
+
+        try {
+            const token = document.querySelector('meta[name="csrf-token"]').content;
+            const response = await fetch(window.__reportRestrictionUrl || '/planner/report-restriction', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    restriction_id: restrictionId,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                const restriction = window.__restrictions.find(r => r.id == restrictionId);
+                if (restriction) {
+                    restriction.verification_count = (restriction.verification_count || 0) + 1;
+                    if (restriction.verification_count >= 3) {
+                        restriction.verified = true;
+                    }
+                }
+                btn.textContent = 'Verified!';
+                btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                btn.classList.add('bg-green-400');
+                recheckRestrictions();
+            } else {
+                btn.textContent = 'Failed';
+                btn.disabled = false;
+                setTimeout(() => { btn.textContent = 'Verify'; }, 2000);
+            }
+        } catch (err) {
+            console.error('Verify error:', err);
+            btn.textContent = 'Error';
+            btn.disabled = false;
+            setTimeout(() => { btn.textContent = 'Verify'; }, 2000);
+        }
+    });
 }

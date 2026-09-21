@@ -11,13 +11,20 @@ use Illuminate\Validation\ValidationException;
 
 class PlannerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $restrictions = RoadRestriction::where('status', 'active')
             ->select('id', 'restriction_type', 'address', 'latitude', 'longitude', 'severity', 'verified', 'description', 'status')
             ->get();
 
-        return view('planner', compact('restrictions'));
+        $savedRoute = null;
+        if ($request->has('route')) {
+            $savedRoute = SavedRoute::where('id', $request->query('route'))
+                ->where('user_id', Auth::id())
+                ->first();
+        }
+
+        return view('planner', compact('restrictions', 'savedRoute'));
     }
 
     public function store(Request $request): JsonResponse
@@ -89,6 +96,24 @@ class PlannerController extends Controller
 
     public function reportRestriction(Request $request): JsonResponse
     {
+        if ($request->has('restriction_id')) {
+            $restriction = RoadRestriction::find($request->input('restriction_id'));
+            if (!$restriction) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Restriction not found.',
+                ], 404);
+            }
+
+            $restriction->verify();
+
+            return response()->json([
+                'success' => true,
+                'restriction' => $restriction,
+                'message' => 'Restriction verified. Thank you!',
+            ]);
+        }
+
         try {
             $validated = $request->validate([
                 'restriction_type' => 'required|string|in:low_bridge,weight_limit,height_limit,width_limit,road_ban,rough_road,other',

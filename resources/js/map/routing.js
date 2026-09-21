@@ -41,6 +41,7 @@ export async function getRoute(waypoints, profile = 'car') {
             duration: leg.duration,
             steps: leg.steps.map(step => ({
                 instruction: step.maneuver.type,
+                modifier: step.maneuver.modifier || null,
                 name: step.name,
                 distance: step.distance,
                 duration: step.duration,

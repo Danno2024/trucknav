@@ -9,7 +9,13 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $user = Auth::user();
+    $savedRoutes = $user->savedRoutes()->latest()->get();
+    $savedRoutesCount = $savedRoutes->count();
+    $totalDistance = (float) $savedRoutes->sum('total_distance_km');
+    $hazardsReported = $user->roadRestrictions()->count();
+
+    return view('dashboard', compact('savedRoutes', 'savedRoutesCount', 'totalDistance', 'hazardsReported'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
