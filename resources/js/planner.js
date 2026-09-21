@@ -489,16 +489,53 @@ function showRouteActions(show) {
 
 function initSaveRoute() {
     const saveBtn = document.getElementById('save-route-btn');
-    if (!saveBtn) return;
+    const modal = document.getElementById('save-modal');
+    const backdrop = document.getElementById('save-modal-backdrop');
+    const cancelBtn = document.getElementById('save-modal-cancel');
+    const confirmBtn = document.getElementById('save-modal-confirm');
+    const nameInput = document.getElementById('route-name-input');
+    const modalError = document.getElementById('save-modal-error');
+    if (!saveBtn || !modal) return;
+
+    function openModal() {
+        nameInput.value = '';
+        modalError.classList.add('hidden');
+        modal.classList.remove('hidden');
+        nameInput.focus();
+    }
+
+    function closeModal() {
+        modal.classList.add('hidden');
+        nameInput.value = '';
+        modalError.classList.add('hidden');
+    }
+
+    cancelBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+    nameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') confirmBtn.click();
+        if (e.key === 'Escape') closeModal();
+    });
 
     saveBtn.addEventListener('click', async () => {
         if (!currentRoute || !originMarker || !destinationMarker) {
             showRouteError('Please plan a route first.');
             return;
         }
+        openModal();
+    });
 
-        const name = prompt('Enter a name for this route:');
-        if (!name) return;
+    confirmBtn.addEventListener('click', async () => {
+        const name = nameInput.value.trim();
+        if (!name) {
+            modalError.textContent = 'Please enter a route name.';
+            modalError.classList.remove('hidden');
+            return;
+        }
+
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Saving...';
+        modalError.classList.add('hidden');
 
         const origin = originMarker.getLatLng();
         const dest = destinationMarker.getLatLng();
@@ -525,9 +562,6 @@ function initSaveRoute() {
             route_geometry: currentRoute.geometry,
         };
 
-        saveBtn.disabled = true;
-        saveBtn.textContent = 'Saving...';
-
         try {
             const token = document.querySelector('meta[name="csrf-token"]').content;
             const response = await fetch('/planner/save', {
@@ -543,7 +577,7 @@ function initSaveRoute() {
             const data = await response.json();
 
             if (data.success) {
-                showRouteError('');
+                closeModal();
                 const successEl = document.getElementById('route-success');
                 if (successEl) {
                     successEl.textContent = data.message;
@@ -554,14 +588,16 @@ function initSaveRoute() {
                 const errorMsg = data.errors
                     ? Object.values(data.errors).flat().join(', ')
                     : (data.message || 'Unknown error');
-                showRouteError('Save failed: ' + errorMsg);
+                modalError.textContent = 'Save failed: ' + errorMsg;
+                modalError.classList.remove('hidden');
             }
         } catch (err) {
             console.error('Save error:', err);
-            showRouteError('Error saving route. Please try again.');
+            modalError.textContent = 'Error saving route. Please try again.';
+            modalError.classList.remove('hidden');
         } finally {
-            saveBtn.disabled = false;
-            saveBtn.textContent = 'Save Route';
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = 'Save';
         }
     });
 }

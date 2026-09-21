@@ -185,6 +185,29 @@
         </div>
     </div>
 
+    <div id="save-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/50" id="save-modal-backdrop"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">Save Route</h3>
+            <div class="mb-4">
+                <label for="route-name-input" class="block text-sm font-medium text-gray-700 mb-1">Route Name</label>
+                <input type="text" id="route-name-input" placeholder="e.g. Melbourne to Bendigo"
+                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
+            </div>
+            <div id="save-modal-error" class="hidden mb-4 bg-red-50 text-red-700 text-sm p-3 rounded-lg"></div>
+            <div class="flex gap-3">
+                <button type="button" id="save-modal-cancel"
+                    class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-300 transition">
+                    Cancel
+                </button>
+                <button type="button" id="save-modal-confirm"
+                    class="flex-1 px-4 py-2 bg-maroon-700 text-white rounded-lg font-semibold text-sm hover:bg-maroon-800 transition">
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         window.__restrictions = @json($restrictions);
     </script>

@@ -14,7 +14,7 @@ class PlannerController extends Controller
     public function index()
     {
         $restrictions = RoadRestriction::where('status', 'active')
-            ->select('id', 'restriction_type', 'address', 'latitude', 'longitude', 'severity', 'verified', 'description')
+            ->select('id', 'restriction_type', 'address', 'latitude', 'longitude', 'severity', 'verified', 'description', 'status')
             ->get();
 
         return view('planner', compact('restrictions'));

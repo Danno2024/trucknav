@@ -1,4 +1,4 @@
-const RESTRICTION_RADIUS_METERS = 100;
+const RESTRICTION_RADIUS_METERS = 1000;
 
 function haversineDistance(lat1, lng1, lat2, lng2) {
     const R = 6371000;
