@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSaveRoute();
     initHazardReporting();
     initPrintRoute();
+    initReviewModal();
     loadRestrictions();
     initVerifyRestrictions();
 
@@ -645,6 +646,7 @@ function initSaveRoute() {
                     successEl.classList.remove('hidden');
                     setTimeout(() => successEl.classList.add('hidden'), 3000);
                 }
+                setTimeout(() => showReviewModal(), 1000);
             } else {
                 const errorMsg = data.errors
                     ? Object.values(data.errors).flat().join(', ')
@@ -1222,4 +1224,120 @@ function initVerifyRestrictions() {
             setTimeout(() => { btn.textContent = 'Verify'; }, 2000);
         }
     });
+}
+
+let selectedRating = 0;
+
+function initReviewModal() {
+    const modal = document.getElementById('review-modal');
+    const backdrop = document.getElementById('review-modal-backdrop');
+    const skipBtn = document.getElementById('review-modal-skip');
+    const submitBtn = document.getElementById('review-modal-submit');
+    const commentInput = document.getElementById('review-comment');
+    const errorEl = document.getElementById('review-modal-error');
+    const successEl = document.getElementById('review-modal-success');
+    const stars = document.querySelectorAll('.review-star');
+
+    if (!modal || !skipBtn) return;
+
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            selectedRating = parseInt(star.dataset.rating);
+            updateStars();
+            submitBtn.disabled = false;
+        });
+
+        star.addEventListener('mouseenter', () => {
+            const rating = parseInt(star.dataset.rating);
+            stars.forEach((s, i) => {
+                s.classList.toggle('text-yellow-400', i < rating);
+                s.classList.toggle('text-gray-300', i >= rating);
+            });
+        });
+    });
+
+    document.getElementById('review-stars').addEventListener('mouseleave', updateStars);
+
+    function updateStars() {
+        stars.forEach((s, i) => {
+            s.classList.toggle('text-yellow-400', i < selectedRating);
+            s.classList.toggle('text-gray-300', i >= selectedRating);
+        });
+    }
+
+    skipBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        selectedRating = 0;
+        updateStars();
+        commentInput.value = '';
+        submitBtn.disabled = true;
+    });
+
+    backdrop.addEventListener('click', () => {
+        skipBtn.click();
+    });
+
+    submitBtn.addEventListener('click', async () => {
+        if (selectedRating === 0) {
+            errorEl.textContent = 'Please select a star rating.';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+        errorEl.classList.add('hidden');
+
+        try {
+            const token = document.querySelector('meta[name="csrf-token"]').content;
+            const response = await fetch(window.__reviewUrl || '/reviews', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    rating: selectedRating,
+                    comment: commentInput.value.trim() || null,
+                    platform: 'app',
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                successEl.textContent = data.message;
+                successEl.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    successEl.classList.add('hidden');
+                    selectedRating = 0;
+                    updateStars();
+                    commentInput.value = '';
+                    submitBtn.disabled = true;
+                }, 1500);
+            } else {
+                const errorMsg = data.errors
+                    ? Object.values(data.errors).flat().join(', ')
+                    : (data.message || 'Failed to submit review.');
+                errorEl.textContent = errorMsg;
+                errorEl.classList.remove('hidden');
+            }
+        } catch (err) {
+            console.error('Review error:', err);
+            errorEl.textContent = 'Error submitting review. Please try again.';
+            errorEl.classList.remove('hidden');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit';
+        }
+    });
+}
+
+function showReviewModal() {
+    const modal = document.getElementById('review-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
 }

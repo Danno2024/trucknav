@@ -281,10 +281,43 @@
 
     <div id="print-container" class="hidden"></div>
 
+    <div id="review-modal" class="fixed inset-0 hidden" style="z-index: 10000;">
+        <div class="absolute inset-0 bg-black/50" id="review-modal-backdrop"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-6 w-full max-w-md" style="z-index: 10001;">
+            <h3 class="text-lg font-bold text-gray-900 mb-1">How was your experience?</h3>
+            <p class="text-sm text-gray-500 mb-4">Your feedback helps us improve TruckNav for all drivers.</p>
+            <div id="review-stars" class="flex gap-1 mb-4">
+                <button type="button" class="review-star text-3xl text-gray-300 hover:text-yellow-400 transition" data-rating="1">&#9733;</button>
+                <button type="button" class="review-star text-3xl text-gray-300 hover:text-yellow-400 transition" data-rating="2">&#9733;</button>
+                <button type="button" class="review-star text-3xl text-gray-300 hover:text-yellow-400 transition" data-rating="3">&#9733;</button>
+                <button type="button" class="review-star text-3xl text-gray-300 hover:text-yellow-400 transition" data-rating="4">&#9733;</button>
+                <button type="button" class="review-star text-3xl text-gray-300 hover:text-yellow-400 transition" data-rating="5">&#9733;</button>
+            </div>
+            <div class="mb-4">
+                <label for="review-comment" class="block text-sm font-medium text-gray-700 mb-1">Comments (optional)</label>
+                <textarea id="review-comment" rows="3" placeholder="Tell us what you think..."
+                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm"></textarea>
+            </div>
+            <div id="review-modal-error" class="hidden mb-4 bg-red-50 text-red-700 text-sm p-3 rounded-lg"></div>
+            <div id="review-modal-success" class="hidden mb-4 bg-green-50 text-green-700 text-sm p-3 rounded-lg"></div>
+            <div class="flex gap-3">
+                <button type="button" id="review-modal-skip"
+                    class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-300 transition">
+                    Skip
+                </button>
+                <button type="button" id="review-modal-submit"
+                    class="flex-1 px-4 py-2 bg-maroon-700 text-white rounded-lg font-semibold text-sm hover:bg-maroon-800 transition" disabled>
+                    Submit
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         window.__restrictions = {!! json_encode($restrictions->toArray()) !!};
         window.__saveUrl = '{{ url("/planner/save") }}';
         window.__reportRestrictionUrl = '{{ url("/planner/report-restriction") }}';
+        window.__reviewUrl = '{{ url("/reviews") }}';
         window.__savedRoute = {!! $savedRoute ? json_encode($savedRoute) : 'null' !!};
         console.log('[TruckNav] Restrictions from server:', window.__restrictions.length, window.__restrictions);
         console.log('[TruckNav] Save URL:', window.__saveUrl);

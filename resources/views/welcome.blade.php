@@ -200,13 +200,13 @@
                 TruckNav is free and always will be. If it's helped you plan a safer route, consider leaving a review or making a small donation to help keep the project running.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="https://www.paypal.com/donate" target="_blank" class="inline-flex items-center justify-center px-8 py-3 bg-white text-maroon-800 font-semibold rounded-lg hover:bg-maroon-50 transition-colors text-lg">
+                <a href="{{ route('donate') }}" class="inline-flex items-center justify-center px-8 py-3 bg-white text-maroon-800 font-semibold rounded-lg hover:bg-maroon-50 transition-colors text-lg">
                     <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z"/>
                     </svg>
                     Make a Donation
                 </a>
-                <a href="https://www.google.com/maps" target="_blank" class="inline-flex items-center justify-center px-8 py-3 border-2 border-white text-white font-semibold rounded-lg hover:bg-white/10 transition-colors text-lg">
+                <a href="{{ url('/#features') }}" class="inline-flex items-center justify-center px-8 py-3 border-2 border-white text-white font-semibold rounded-lg hover:bg-white/10 transition-colors text-lg">
                     Leave a Review
                 </a>
             </div>

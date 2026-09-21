@@ -16,6 +16,9 @@
                     <x-nav-link :href="route('planner')" :active="request()->routeIs('planner')">
                         {{ __('Route Planner') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('donate')" :active="request()->routeIs('donate')">
+                        {{ __('Donate') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -67,6 +70,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('planner')" :active="request()->routeIs('planner')">
                 {{ __('Route Planner') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('donate')" :active="request()->routeIs('donate')">
+                {{ __('Donate') }}
             </x-responsive-nav-link>
         </div>
 

@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\DonationController;
 use App\Http\Controllers\PlannerController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -30,6 +32,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::get('/donate', [DonationController::class, 'index'])->name('donate');
+Route::post('/donate', [DonationController::class, 'store'])->name('donate.store');
+Route::get('/donate/return', [DonationController::class, 'paypalReturn'])->name('donate.return');
+Route::get('/donate/cancel', [DonationController::class, 'paypalCancel'])->name('donate.cancel');
+
+Route::middleware('auth')->group(function () {
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 });
 
 require __DIR__.'/auth.php';

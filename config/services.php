@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'paypal' => [
+        'business_email' => env('PAYPAL_BUSINESS_EMAIL', ''),
+    ],
+
 ];
