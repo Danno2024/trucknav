@@ -21,9 +21,9 @@ return new class extends Migration
             $table->json('waypoints')->nullable();
             $table->string('vehicle_type')->default('truck');
             $table->integer('vehicle_weight_kg')->nullable();
-            $table->integer('vehicle_height_cm')->nullable();
-            $table->integer('vehicle_width_cm')->nullable();
-            $table->integer('vehicle_length_cm')->nullable();
+            $table->decimal('vehicle_height_m', 4, 1)->nullable();
+            $table->decimal('vehicle_width_m', 4, 1)->nullable();
+            $table->decimal('vehicle_length_m', 5, 1)->nullable();
             $table->decimal('total_distance_km', 10, 2)->nullable();
             $table->integer('total_duration_minutes')->nullable();
             $table->json('route_geometry')->nullable();

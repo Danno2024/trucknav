@@ -505,6 +505,21 @@ function showRouteActions(show) {
     if (actions) actions.classList.toggle('hidden', !show);
 }
 
+function simplifyGeometry(coords, tolerance = 0.001) {
+    if (coords.length <= 2) return coords;
+    const result = [coords[0]];
+    for (let i = 1; i < coords.length - 1; i++) {
+        const prev = result[result.length - 1];
+        const dx = coords[i][0] - prev[0];
+        const dy = coords[i][1] - prev[1];
+        if (Math.sqrt(dx * dx + dy * dy) >= tolerance) {
+            result.push(coords[i]);
+        }
+    }
+    result.push(coords[coords.length - 1]);
+    return result;
+}
+
 function initSaveRoute() {
     const saveBtn = document.getElementById('save-route-btn');
     const modal = document.getElementById('save-modal');
@@ -583,7 +598,7 @@ function initSaveRoute() {
             vehicle_length_m: vehicleProfile.length_m,
             total_distance_km: Math.round(currentRoute.distance / 1000 * 100) / 100,
             total_duration_minutes: Math.round(currentRoute.duration / 60),
-            route_geometry: currentRoute.geometry,
+            route_geometry: simplifyGeometry(currentRoute.geometry),
         };
 
         try {
@@ -597,6 +612,16 @@ function initSaveRoute() {
                 },
                 body: JSON.stringify(payload),
             });
+
+            console.log('[TruckNav] Save response status:', response.status, response.statusText);
+
+            if (!response.ok) {
+                const text = await response.text();
+                console.error('[TruckNav] Save error response:', text.substring(0, 500));
+                modalError.textContent = `Server error (${response.status}). Please try again.`;
+                modalError.classList.remove('hidden');
+                return;
+            }
 
             const data = await response.json();
 
