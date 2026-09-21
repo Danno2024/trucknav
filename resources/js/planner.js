@@ -2,7 +2,7 @@ import L from 'leaflet';
 import { initMap, drawRoute, addMarker, addRestrictionMarker, clearMarkers, setView, getMap } from './map/index.js';
 import { geocode, reverseGeocode } from './map/geocoding.js';
 import { getRoute, formatDistance, formatDuration } from './map/routing.js';
-import { checkRouteForRestrictions } from './map/restrictions.js';
+import { checkRouteForRestrictions, pointToLineDistance } from './map/restrictions.js';
 
 let map;
 let originMarker = null;
@@ -448,31 +448,72 @@ function initMapClick() {
     });
 }
 
+const MAX_AVOID_ATTEMPTS = 3;
+const AVOID_OFFSET_METERS = 800;
+
 async function tryAutoRoute() {
     if (!originMarker || !destinationMarker) return;
 
-    const allWaypoints = [];
+    const baseWaypoints = [];
     const origin = originMarker.getLatLng();
     const dest = destinationMarker.getLatLng();
 
-    allWaypoints.push({ lat: origin.lat, lng: origin.lng });
-    waypoints.forEach(wp => allWaypoints.push({ lat: wp.lat, lng: wp.lng }));
-    allWaypoints.push({ lat: dest.lat, lng: dest.lng });
+    baseWaypoints.push({ lat: origin.lat, lng: origin.lng });
+    waypoints.forEach(wp => baseWaypoints.push({ lat: wp.lat, lng: wp.lng }));
+    baseWaypoints.push({ lat: dest.lat, lng: dest.lng });
 
     try {
         showRouteLoading(true);
         hideRestrictionWarnings();
 
-        const routeResult = await getRoute(allWaypoints, 'car');
+        let routeResult = await getRoute(baseWaypoints, 'car');
+        let avoidPoints = [];
+
+        for (let attempt = 0; attempt < MAX_AVOID_ATTEMPTS; attempt++) {
+            const restrictions = window.__restrictions || [];
+            const warnings = checkRouteForRestrictions(routeResult.geometry, restrictions, vehicleProfile);
+
+            if (warnings.length === 0) break;
+
+            const criticalWarnings = warnings.filter(w => w.severity === 'critical' || w.severity === 'high');
+            if (criticalWarnings.length === 0) break;
+
+            console.log(`[TruckNav] Attempt ${attempt + 1}: ${criticalWarnings.length} restrictions on route, rerouting around...`);
+
+            for (const warning of criticalWarnings) {
+                const restriction = warning.restriction;
+                const avoidPt = calculateAvoidWaypoint(routeResult.geometry, restriction.latitude, restriction.longitude);
+                if (avoidPt) {
+                    avoidPoints.push(avoidPt);
+                    console.log(`[TruckNav]   Adding avoid waypoint at ${avoidPt.lat.toFixed(5)}, ${avoidPt.lng.toFixed(5)} for: ${restriction.address}`);
+                }
+            }
+
+            const rerouteWaypoints = [];
+            rerouteWaypoints.push(baseWaypoints[0]);
+
+            for (const wp of baseWaypoints.slice(1, -1)) {
+                rerouteWaypoints.push(wp);
+            }
+
+            for (const ap of avoidPoints) {
+                rerouteWaypoints.push(ap);
+            }
+
+            rerouteWaypoints.push(baseWaypoints[baseWaypoints.length - 1]);
+
+            try {
+                routeResult = await getRoute(rerouteWaypoints, 'car');
+            } catch {
+                console.log('[TruckNav] Reroute failed, keeping previous route');
+                break;
+            }
+        }
 
         currentRoute = routeResult;
-
         drawRoute(routeResult.geometry);
-
         updateRouteSummary(routeResult);
-
         recheckRestrictions();
-
         showRouteActions(true);
     } catch (err) {
         console.error('[TruckNav] Routing error:', err);
@@ -480,6 +521,42 @@ async function tryAutoRoute() {
     } finally {
         showRouteLoading(false);
     }
+}
+
+function calculateAvoidWaypoint(routeGeometry, restrictionLat, restrictionLng) {
+    let bestSegIdx = 0;
+    let bestDist = Infinity;
+
+    for (let i = 0; i < routeGeometry.length - 1; i++) {
+        const [lng1, lat1] = routeGeometry[i];
+        const [lng2, lat2] = routeGeometry[i + 1];
+        const dist = pointToLineDistance(restrictionLat, restrictionLng, lat1, lng1, lat2, lng2);
+        if (dist < bestDist) {
+            bestDist = dist;
+            bestSegIdx = i;
+        }
+    }
+
+    const [segLng1, segLat1] = routeGeometry[bestSegIdx];
+    const [segLng2, segLat2] = routeGeometry[Math.min(bestSegIdx + 1, routeGeometry.length - 1)];
+
+    const dLat = segLat2 - segLat1;
+    const dLng = segLng2 - segLng1;
+    const len = Math.sqrt(dLat * dLat + dLng * dLng);
+    if (len === 0) return null;
+
+    const perpLat = -dLng / len;
+    const perpLng = dLat / len;
+
+    const offsetDeg = AVOID_OFFSET_METERS / 111320;
+
+    const dotProduct = perpLat * (restrictionLat - segLat1) + perpLng * (restrictionLng - segLng1);
+    const direction = dotProduct >= 0 ? -1 : 1;
+
+    return {
+        lat: restrictionLat + direction * perpLat * offsetDeg,
+        lng: restrictionLng + direction * perpLng * offsetDeg,
+    };
 }
 
 function updateRouteSummary(route) {

@@ -11,7 +11,7 @@ function haversineDistance(lat1, lng1, lat2, lng2) {
     return R * c;
 }
 
-function pointToLineDistance(pointLat, pointLng, lineStartLat, lineStartLng, lineEndLat, lineEndLng) {
+export function pointToLineDistance(pointLat, pointLng, lineStartLat, lineStartLng, lineEndLat, lineEndLng) {
     const d1 = haversineDistance(pointLat, pointLng, lineStartLat, lineStartLng);
     const d2 = haversineDistance(pointLat, pointLng, lineEndLat, lineEndLng);
     const lineLength = haversineDistance(lineStartLat, lineStartLng, lineEndLat, lineEndLng);
