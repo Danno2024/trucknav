@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PlannerController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -11,9 +12,13 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/planner', function () {
-    return view('planner');
-})->middleware(['auth', 'verified'])->name('planner');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/planner', [PlannerController::class, 'index'])->name('planner');
+    Route::post('/planner/save', [PlannerController::class, 'store'])->name('planner.save');
+    Route::get('/planner/{route}', [PlannerController::class, 'show'])->name('planner.show');
+    Route::delete('/planner/{route}', [PlannerController::class, 'destroy'])->name('planner.destroy');
+    Route::post('/planner/report-restriction', [PlannerController::class, 'reportRestriction'])->name('planner.report-restriction');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

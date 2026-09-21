@@ -1,23 +1,185 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Route Planner') }}
-        </h2>
-    </x-slot>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <div class="text-center py-12">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                        </svg>
-                        <h3 class="mt-2 text-lg font-medium text-gray-900">Route Planner Coming Soon</h3>
-                        <p class="mt-1 text-sm text-gray-500">The interactive route planner will be available in the next phase of development.</p>
+    <style>
+        .planner-layout {
+            display: flex;
+            height: calc(100vh - 64px);
+        }
+        .planner-sidebar {
+            width: 400px;
+            min-width: 400px;
+            overflow-y: auto;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+        }
+        .planner-map {
+            flex: 1;
+            position: relative;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        .search-wrapper {
+            position: relative;
+        }
+        .suggestions-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        .restriction-marker {
+            background: transparent;
+            border: none;
+        }
+        @media (max-width: 768px) {
+            .planner-layout {
+                flex-direction: column;
+            }
+            .planner-sidebar {
+                width: 100%;
+                min-width: 100%;
+                max-height: 40vh;
+            }
+            .planner-map {
+                min-height: 60vh;
+            }
+        }
+    </style>
+
+    <div class="planner-layout">
+        <div class="planner-sidebar">
+            <div class="p-4">
+                <h1 class="text-lg font-bold text-gray-900 mb-4">Route Planner</h1>
+
+                <div class="mb-4">
+                    <label for="origin-search" class="block text-sm font-medium text-gray-700 mb-1">Origin</label>
+                    <div class="search-wrapper">
+                        <input type="text" id="origin-search" placeholder="Search origin address..."
+                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
+                        <div id="origin-suggestions" class="suggestions-dropdown hidden"></div>
                     </div>
                 </div>
+
+                <div class="mb-4">
+                    <label for="destination-search" class="block text-sm font-medium text-gray-700 mb-1">Destination</label>
+                    <div class="search-wrapper">
+                        <input type="text" id="destination-search" placeholder="Search destination address..."
+                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
+                        <div id="destination-suggestions" class="suggestions-dropdown hidden"></div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="waypoint-search" class="block text-sm font-medium text-gray-700 mb-1">Add Stop (Optional)</label>
+                    <div class="search-wrapper">
+                        <input type="text" id="waypoint-search" placeholder="Search stop address..."
+                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
+                        <div id="waypoint-suggestions" class="suggestions-dropdown hidden"></div>
+                    </div>
+                    <div id="waypoints-list" class="mt-2">
+                        <p class="text-sm text-gray-500 italic">No stops added</p>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="mb-4">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Vehicle Profile</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="col-span-2">
+                            <label for="vehicle-type" class="block text-xs font-medium text-gray-600 mb-1">Type</label>
+                            <select id="vehicle-type" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
+                                <option value="truck">Truck</option>
+                                <option value="bus">Bus</option>
+                                <option value="coach">coach</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="vehicle-weight" class="block text-xs font-medium text-gray-600 mb-1">Weight (kg)</label>
+                            <input type="number" id="vehicle-weight" placeholder="e.g. 42500" min="0"
+                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
+                        </div>
+                        <div>
+                            <label for="vehicle-height" class="block text-xs font-medium text-gray-600 mb-1">Height (cm)</label>
+                            <input type="number" id="vehicle-height" placeholder="e.g. 460" min="0"
+                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
+                        </div>
+                        <div>
+                            <label for="vehicle-width" class="block text-xs font-medium text-gray-600 mb-1">Width (cm)</label>
+                            <input type="number" id="vehicle-width" placeholder="e.g. 250" min="0"
+                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
+                        </div>
+                        <div>
+                            <label for="vehicle-length" class="block text-xs font-medium text-gray-600 mb-1">Length (cm)</label>
+                            <input type="number" id="vehicle-length" placeholder="e.g. 1650" min="0"
+                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div id="route-summary" class="hidden mb-4">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Route Summary</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-maroon-50 rounded-lg p-3">
+                            <div class="text-lg font-bold text-maroon-700" id="route-distance">--</div>
+                            <div class="text-xs text-gray-600">Distance</div>
+                        </div>
+                        <div class="bg-maroon-50 rounded-lg p-3">
+                            <div class="text-lg font-bold text-maroon-700" id="route-duration">--</div>
+                            <div class="text-xs text-gray-600">Duration</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="route-loading" class="hidden mb-4 text-center py-4">
+                    <div class="inline-flex items-center gap-2 text-sm text-gray-600">
+                        <svg class="animate-spin h-4 w-4 text-maroon-600" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                        Calculating route...
+                    </div>
+                </div>
+
+                <div id="route-error" class="hidden mb-4 bg-red-50 text-red-700 text-sm p-3 rounded-lg"></div>
+
+                <div id="route-actions" class="hidden">
+                    <button type="button" id="save-route-btn"
+                        class="w-full inline-flex items-center justify-center px-4 py-2 bg-maroon-700 border border-transparent rounded-lg font-semibold text-sm text-white hover:bg-maroon-800 focus:outline-none focus:ring-2 focus:ring-maroon-500 focus:ring-offset-2 transition">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                        </svg>
+                        Save Route
+                    </button>
+                </div>
+
+                <p class="text-xs text-gray-400 mt-4 text-center">Tip: Click on the map to set origin and destination points</p>
             </div>
         </div>
+
+        <div class="planner-map">
+            <div id="map"></div>
+        </div>
     </div>
+
+    <script>
+        window.__restrictions = @json($restrictions);
+    </script>
+
+    @push('scripts')
+    <script type="module" src="{{ asset('resources/js/planner.js') }}"></script>
+    @endpush
 </x-app-layout>

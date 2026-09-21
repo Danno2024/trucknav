@@ -98,7 +98,7 @@ This project is currently in active development. The public-facing website and a
 ### Development Roadmap
 
 - [x] Phase 1: Public website, branding, and authentication
-- [ ] Phase 2: Database models and migrations
+- [x] Phase 2: Database models and migrations
 - [ ] Phase 3: Route planner with OpenStreetMap/OSRM
 - [ ] Phase 4: Road restrictions (user-reported hazards)
 - [ ] Phase 5: Dashboard and saved routes
@@ -111,10 +111,10 @@ Contributions are welcome. Please feel free to submit a Pull Request.
 
 ## License
 
-This project is open source and available under the [MIT License](https://opensource.org/licenses/MIT).
+This project is open source and available under GNU GENERAL PUBLIC LICENSE Version 3(https://www.gnu.org/licenses/gpl-3.0.en.html).
 
 ## Acknowledgements
 
-- Built by [Moorcam Development](https://github.com/MoorcamDevelopment), Australia
+- Built by [Moorcam Development](https://www.moorcam.com.au), Australia
 - Routing data provided by [OpenStreetMap](https://www.openstreetmap.org/) contributors
 - Routing engine powered by [OSRM](http://project-osrm.org/)
