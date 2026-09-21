@@ -162,6 +162,8 @@
 
                 <div id="route-error" class="hidden mb-4 bg-red-50 text-red-700 text-sm p-3 rounded-lg"></div>
 
+                <div id="route-success" class="hidden mb-4 bg-green-50 text-green-700 text-sm p-3 rounded-lg"></div>
+
                 <div id="route-actions" class="hidden">
                     <button type="button" id="save-route-btn"
                         class="w-full inline-flex items-center justify-center px-4 py-2 bg-maroon-700 border border-transparent rounded-lg font-semibold text-sm text-white hover:bg-maroon-800 focus:outline-none focus:ring-2 focus:ring-maroon-500 focus:ring-offset-2 transition">

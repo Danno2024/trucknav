@@ -1,3 +1,4 @@
+import L from 'leaflet';
 import { initMap, drawRoute, addMarker, addRestrictionMarker, clearMarkers, setView } from './map/index.js';
 import { geocode, reverseGeocode } from './map/geocoding.js';
 import { getRoute, formatDistance, formatDuration } from './map/routing.js';
@@ -5,6 +6,7 @@ import { getRoute, formatDistance, formatDuration } from './map/routing.js';
 let map;
 let originMarker = null;
 let destinationMarker = null;
+let waypointMarkers = [];
 let currentRoute = null;
 let waypoints = [];
 let vehicleProfile = {
@@ -56,7 +58,7 @@ function initOriginSearch() {
                     originMarker = addMarker(result.lat, result.lng, {
                         title: 'Origin',
                         draggable: true,
-                        popup: `<strong>Origin</strong><br>${result.displayName}`,
+                        popup: '<strong>Origin</strong>',
                     });
 
                     originMarker.on('dragend', (e) => {
@@ -107,7 +109,7 @@ function initDestinationSearch() {
                     destinationMarker = addMarker(result.lat, result.lng, {
                         title: 'Destination',
                         draggable: true,
-                        popup: `<strong>Destination</strong><br>${result.displayName}`,
+                        popup: '<strong>Destination</strong>',
                     });
 
                     destinationMarker.on('dragend', (e) => {
@@ -152,11 +154,45 @@ function initWaypointSearch() {
             try {
                 const results = await geocode(query);
                 renderSuggestions(suggestions, results, (result) => {
+                    const index = waypoints.length + 1;
+
                     waypoints.push({
                         lat: result.lat,
                         lng: result.lng,
                         address: result.displayName,
                     });
+
+                    const wpMarker = addMarker(result.lat, result.lng, {
+                        title: `Stop ${index}`,
+                        popup: `<strong>Stop ${index}</strong><br>${result.displayName}`,
+                    });
+
+                    const wpIcon = L.divIcon({
+                        className: 'waypoint-marker',
+                        html: `<div style="
+                            width: 24px;
+                            height: 24px;
+                            background: #1d4ed8;
+                            border: 2px solid white;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                            color: white;
+                            font-size: 12px;
+                            font-weight: bold;
+                        ">${index}</div>`,
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12],
+                        popupAnchor: [0, -14],
+                    });
+
+                    const marker = L.marker([result.lat, result.lng], { icon: wpIcon })
+                        .bindPopup(`<strong>Stop ${index}</strong><br>${result.displayName}`)
+                        .addTo(map);
+
+                    waypointMarkers.push(marker);
 
                     input.value = '';
                     suggestions.classList.add('hidden');
@@ -208,10 +244,10 @@ function renderWaypointsList(container) {
     container.innerHTML = waypoints.map((wp, i) => `
         <div class="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg mb-2">
             <div class="flex items-center gap-2">
-                <span class="text-xs font-medium text-maroon-700 bg-maroon-100 rounded-full w-6 h-6 flex items-center justify-center">${i + 1}</span>
+                <span class="text-xs font-medium text-white bg-blue-600 rounded-full w-6 h-6 flex items-center justify-center">${i + 1}</span>
                 <span class="text-sm text-gray-700 truncate max-w-[200px]">${wp.address}</span>
             </div>
-            <button type="button" class="text-red-500 hover:text-red-700 text-sm remove-waypoint" data-index="${i}">&times;</button>
+            <button type="button" class="text-red-500 hover:text-red-700 text-sm font-bold remove-waypoint" data-index="${i}">&times;</button>
         </div>
     `).join('');
 
@@ -219,9 +255,44 @@ function renderWaypointsList(container) {
         btn.addEventListener('click', () => {
             const index = parseInt(btn.dataset.index);
             waypoints.splice(index, 1);
+
+            if (waypointMarkers[index]) {
+                map.removeLayer(waypointMarkers[index]);
+                waypointMarkers.splice(index, 1);
+            }
+
+            renumberWaypointMarkers();
             renderWaypointsList(container);
             tryAutoRoute();
         });
+    });
+}
+
+function renumberWaypointMarkers() {
+    waypointMarkers.forEach((marker, i) => {
+        const index = i + 1;
+        const wpIcon = L.divIcon({
+            className: 'waypoint-marker',
+            html: `<div style="
+                width: 24px;
+                height: 24px;
+                background: #1d4ed8;
+                border: 2px solid white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                color: white;
+                font-size: 12px;
+                font-weight: bold;
+            ">${index}</div>`,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+            popupAnchor: [0, -14],
+        });
+        marker.setIcon(wpIcon);
+        marker.setPopupContent(`<strong>Stop ${index}</strong><br>${waypoints[i].address}`);
     });
 }
 
@@ -268,11 +339,27 @@ function initMapClick() {
         const { lat, lng } = e.latlng;
 
         if (!originMarker) {
-            originMarker = addMarker(lat, lng, {
-                title: 'Origin',
-                draggable: true,
-                popup: '<strong>Origin</strong>',
+            const icon = L.divIcon({
+                className: 'origin-marker',
+                html: `<div style="
+                    width: 32px;
+                    height: 32px;
+                    background: #16a34a;
+                    border: 3px solid white;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+                "><span style="color:white;font-size:16px;font-weight:bold;">A</span></div>`,
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -18],
             });
+
+            originMarker = L.marker([lat, lng], { icon, draggable: true })
+                .bindPopup('<strong>Origin</strong>')
+                .addTo(map);
 
             reverseGeocode(lat, lng).then((rev) => {
                 const input = document.getElementById('origin-search');
@@ -287,11 +374,27 @@ function initMapClick() {
                 });
             });
         } else if (!destinationMarker) {
-            destinationMarker = addMarker(lat, lng, {
-                title: 'Destination',
-                draggable: true,
-                popup: '<strong>Destination</strong>',
+            const icon = L.divIcon({
+                className: 'destination-marker',
+                html: `<div style="
+                    width: 32px;
+                    height: 32px;
+                    background: #dc2626;
+                    border: 3px solid white;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+                "><span style="color:white;font-size:16px;font-weight:bold;">B</span></div>`,
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -18],
             });
+
+            destinationMarker = L.marker([lat, lng], { icon, draggable: true })
+                .bindPopup('<strong>Destination</strong>')
+                .addTo(map);
 
             reverseGeocode(lat, lng).then((rev) => {
                 const input = document.getElementById('destination-search');
@@ -381,7 +484,7 @@ function initSaveRoute() {
 
     saveBtn.addEventListener('click', async () => {
         if (!currentRoute || !originMarker || !destinationMarker) {
-            alert('Please plan a route first');
+            showRouteError('Please plan a route first.');
             return;
         }
 
@@ -396,10 +499,10 @@ function initSaveRoute() {
 
         const payload = {
             name,
-            origin_address: originInput ? originInput.value : '',
+            origin_address: originInput ? originInput.value : 'Origin',
             origin_lat: origin.lat,
             origin_lng: origin.lng,
-            destination_address: destInput ? destInput.value : '',
+            destination_address: destInput ? destInput.value : 'Destination',
             destination_lat: dest.lat,
             destination_lng: dest.lng,
             waypoints: waypoints,
@@ -412,6 +515,9 @@ function initSaveRoute() {
             total_duration_minutes: Math.round(currentRoute.duration / 60),
             route_geometry: currentRoute.geometry,
         };
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
 
         try {
             const token = document.querySelector('meta[name="csrf-token"]').content;
@@ -428,13 +534,25 @@ function initSaveRoute() {
             const data = await response.json();
 
             if (data.success) {
-                alert('Route saved successfully!');
+                showRouteError('');
+                const successEl = document.getElementById('route-success');
+                if (successEl) {
+                    successEl.textContent = data.message;
+                    successEl.classList.remove('hidden');
+                    setTimeout(() => successEl.classList.add('hidden'), 3000);
+                }
             } else {
-                alert('Error saving route: ' + (data.message || 'Unknown error'));
+                const errorMsg = data.errors
+                    ? Object.values(data.errors).flat().join(', ')
+                    : (data.message || 'Unknown error');
+                showRouteError('Save failed: ' + errorMsg);
             }
         } catch (err) {
             console.error('Save error:', err);
-            alert('Error saving route. Please try again.');
+            showRouteError('Error saving route. Please try again.');
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Save Route';
         }
     });
 }
