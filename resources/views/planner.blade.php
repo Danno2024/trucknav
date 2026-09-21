@@ -162,6 +162,8 @@
 
                 <div id="route-error" class="hidden mb-4 bg-red-50 text-red-700 text-sm p-3 rounded-lg"></div>
 
+                <div id="route-warnings" class="hidden mb-4"></div>
+
                 <div id="route-success" class="hidden mb-4 bg-green-50 text-green-700 text-sm p-3 rounded-lg"></div>
 
                 <div id="route-actions" class="hidden">
