@@ -4,11 +4,11 @@
 
     {{-- Hero Section --}}
     <section class="relative bg-gradient-to-br from-maroon-900 via-maroon-800 to-maroon-700 text-white overflow-hidden">
-        <div class="absolute inset-0 opacity-10">
+        <div class="absolute inset-0 opacity-5">
             <svg class="w-full h-full" viewBox="0 0 1200 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-6.08A1 1 0 0 0 12.38 4H5.04a1 1 0 0 0-.96.71L2 11l2.9.97a1 1 0 0 1 .6.91V16" stroke="white" stroke-width="1.5" transform="translate(500, 250) scale(12)" opacity="0.3"/>
-                <circle cx="6.5" cy="16" r="2.5" stroke="white" stroke-width="1.5" transform="translate(500, 250) scale(12)" opacity="0.3"/>
-                <circle cx="17.5" cy="16" r="2.5" stroke="white" stroke-width="1.5" transform="translate(500, 250) scale(12)" opacity="0.3"/>
+                <path d="M14 16H9m10 0h3v-3.15a 1 1 0 0 0-.84-.99L16 11l-2.7-6.08A1 1 0 0 0 12.38 4H5.04a1 1 0 0 0-.96.71L2 11l2.9.97a1 1 0 0 1 .6.91V16" stroke="white" stroke-width="1.5" transform="translate(500, 250) scale(12)"/>
+                <circle cx="6.5" cy="16" r="2.5" stroke="white" stroke-width="1.5" transform="translate(500, 250) scale(12)"/>
+                <circle cx="17.5" cy="16" r="2.5" stroke="white" stroke-width="1.5" transform="translate(500, 250) scale(12)"/>
             </svg>
         </div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">

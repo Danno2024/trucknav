@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <meta name="description" content="{{ $metaDescription ?? 'Free route planning for heavy vehicle operators. Plan truck, bus and coach routes避开 low bridges, weight restrictions and road hazards across Australia.' }}">
+        <meta name="description" content="{{ $metaDescription ?? 'Free route planning for heavy vehicle operators. Plan truck, bus and coach routes avoiding low bridges, weight restrictions and road hazards across Australia.' }}">
 
         <title>{{ $title ?? config('app.name', 'TruckNav') }}</title>
 
