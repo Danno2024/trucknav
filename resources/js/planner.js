@@ -1,7 +1,7 @@
 import L from 'leaflet';
 import { initMap, drawRoute, addMarker, addRestrictionMarker, clearMarkers, setView, getMap } from './map/index.js';
 import { geocode, reverseGeocode } from './map/geocoding.js';
-import { getRoute, formatDistance, formatDuration } from './map/routing.js';
+import { getRoute, formatDistance, formatDuration, hasTruckDimensions } from './map/routing.js';
 import { checkRouteForRestrictions, pointToLineDistance } from './map/restrictions.js';
 
 let map;
@@ -331,38 +331,48 @@ function initVehicleProfile() {
     const widthInput = document.getElementById('vehicle-width');
     const lengthInput = document.getElementById('vehicle-length');
 
+    let profileDebounce = null;
+
+    function onVehicleProfileChange() {
+        recheckRestrictions();
+        if (originMarker && destinationMarker) {
+            clearTimeout(profileDebounce);
+            profileDebounce = setTimeout(() => tryAutoRoute(), 800);
+        }
+    }
+
     if (typeSelect) {
         typeSelect.addEventListener('change', () => {
             vehicleProfile.type = typeSelect.value;
-            recheckRestrictions();
+            onVehicleProfileChange();
         });
     }
 
     if (weightInput) {
         weightInput.addEventListener('input', () => {
             vehicleProfile.weight_kg = weightInput.value ? parseInt(weightInput.value) : null;
-            recheckRestrictions();
+            onVehicleProfileChange();
         });
     }
 
     if (heightInput) {
         heightInput.addEventListener('input', () => {
             vehicleProfile.height_m = heightInput.value ? parseFloat(heightInput.value) : null;
-            recheckRestrictions();
+            onVehicleProfileChange();
         });
     }
 
     if (widthInput) {
         widthInput.addEventListener('input', () => {
             vehicleProfile.width_m = widthInput.value ? parseFloat(widthInput.value) : null;
-            recheckRestrictions();
+            onVehicleProfileChange();
         });
     }
 
     if (lengthInput) {
         lengthInput.addEventListener('input', () => {
             vehicleProfile.length_m = lengthInput.value ? parseFloat(lengthInput.value) : null;
-            recheckRestrictions();
+            onVehicleProfileChange();
         });
     }
 }
@@ -448,9 +458,6 @@ function initMapClick() {
     });
 }
 
-const MAX_AVOID_ATTEMPTS = 3;
-const AVOID_OFFSET_METERS = 1500;
-
 async function tryAutoRoute() {
     if (!originMarker || !destinationMarker) return;
 
@@ -466,57 +473,13 @@ async function tryAutoRoute() {
         showRouteLoading(true);
         hideRestrictionWarnings();
 
-        let routeResult = await getRoute(baseWaypoints, 'car');
+        const engine = hasTruckDimensions(vehicleProfile) ? 'Valhalla (truck)' : 'OSRM (car)';
+        console.log(`[TruckNav] Routing via ${engine}`);
 
-        for (let attempt = 0; attempt < MAX_AVOID_ATTEMPTS; attempt++) {
-            const restrictions = window.__restrictions || [];
-            const warnings = checkRouteForRestrictions(routeResult.geometry, restrictions, vehicleProfile);
+        const routeResult = await getRoute(baseWaypoints, 'car', vehicleProfile);
 
-            if (warnings.length === 0) break;
-
-            const criticalWarnings = warnings.filter(w => w.severity === 'critical' || w.severity === 'high');
-            if (criticalWarnings.length === 0) break;
-
-            console.log(`[TruckNav] Attempt ${attempt + 1}: ${criticalWarnings.length} hazard(s) on route, rerouting around...`);
-
-            let bestRoute = null;
-            let bestWarningCount = criticalWarnings.length;
-
-            for (const warning of criticalWarnings) {
-                const restriction = warning.restriction;
-                const offsetPoints = calculateBothSideOffsets(routeResult.geometry, restriction.latitude, restriction.longitude);
-
-                for (const offsetPt of offsetPoints) {
-                    const trialWaypoints = buildRerouteWaypoints(baseWaypoints, [offsetPt]);
-
-                    try {
-                        const trialRoute = await getRoute(trialWaypoints, 'car');
-                        const trialWarnings = checkRouteForRestrictions(trialRoute.geometry, restrictions, vehicleProfile);
-                        const trialCritical = trialWarnings.filter(w => w.severity === 'critical' || w.severity === 'high');
-
-                        console.log(`[TruckNav]   Try offset (${offsetPt.lat.toFixed(4)}, ${offsetPt.lng.toFixed(4)}): ${trialCritical.length} hazard(s), distance: ${Math.round(trialRoute.distance / 1000)}km`);
-
-                        if (trialCritical.length < bestWarningCount) {
-                            bestWarningCount = trialCritical.length;
-                            bestRoute = trialRoute;
-                        }
-
-                        if (trialCritical.length === 0) break;
-                    } catch (e) {
-                        console.log(`[TruckNav]   Offset failed: ${e.message}`);
-                    }
-                }
-
-                if (bestWarningCount === 0) break;
-            }
-
-            if (bestRoute && bestWarningCount < criticalWarnings.length) {
-                routeResult = bestRoute;
-                console.log(`[TruckNav]   Improved route found: ${bestWarningCount} hazard(s) remaining`);
-            } else {
-                console.log('[TruckNav]   No better route found, keeping current');
-                break;
-            }
+        if (routeResult.engine === 'valhalla') {
+            console.log('[TruckNav] Valhalla automatically avoids height-restricted roads');
         }
 
         currentRoute = routeResult;
@@ -530,54 +493,6 @@ async function tryAutoRoute() {
     } finally {
         showRouteLoading(false);
     }
-}
-
-function calculateBothSideOffsets(routeGeometry, restrictionLat, restrictionLng) {
-    let bestSegIdx = 0;
-    let bestDist = Infinity;
-
-    for (let i = 0; i < routeGeometry.length - 1; i++) {
-        const [lng1, lat1] = routeGeometry[i];
-        const [lng2, lat2] = routeGeometry[i + 1];
-        const dist = pointToLineDistance(restrictionLat, restrictionLng, lat1, lng1, lat2, lng2);
-        if (dist < bestDist) {
-            bestDist = dist;
-            bestSegIdx = i;
-        }
-    }
-
-    const [segLng1, segLat1] = routeGeometry[bestSegIdx];
-    const [segLng2, segLat2] = routeGeometry[Math.min(bestSegIdx + 1, routeGeometry.length - 1)];
-
-    const dLat = segLat2 - segLat1;
-    const dLng = segLng2 - segLng1;
-    const len = Math.sqrt(dLat * dLat + dLng * dLng);
-    if (len === 0) return [];
-
-    const perpLat = -dLng / len;
-    const perpLng = dLat / len;
-    const offsetDeg = AVOID_OFFSET_METERS / 111320;
-
-    return [
-        { lat: restrictionLat + perpLat * offsetDeg, lng: restrictionLng + perpLng * offsetDeg },
-        { lat: restrictionLat - perpLat * offsetDeg, lng: restrictionLng - perpLng * offsetDeg },
-    ];
-}
-
-function buildRerouteWaypoints(baseWaypoints, avoidPoints) {
-    const result = [];
-    result.push(baseWaypoints[0]);
-
-    for (const ap of avoidPoints) {
-        result.push(ap);
-    }
-
-    for (let i = 1; i < baseWaypoints.length - 1; i++) {
-        result.push(baseWaypoints[i]);
-    }
-
-    result.push(baseWaypoints[baseWaypoints.length - 1]);
-    return result;
 }
 
 function updateRouteSummary(route) {
@@ -1164,25 +1079,27 @@ function initPrintRoute() {
             });
         }
 
-        function formatInstruction(type, modifier, name) {
+        function formatInstruction(step) {
+            if (step.text) return step.text;
+
             const turnMap = {
-                'turn': modifier ? `Turn ${modifier}` : 'Turn',
+                'turn': step.modifier ? `Turn ${step.modifier}` : 'Turn',
                 'new name': 'Continue onto',
                 'depart': 'Depart',
                 'arrive': 'Arrive at destination',
-                'merge': modifier ? `Merge ${modifier}` : 'Merge',
+                'merge': step.modifier ? `Merge ${step.modifier}` : 'Merge',
                 'roundabout': 'At roundabout',
                 'exit roundabout': 'Exit roundabout',
-                'fork': modifier ? `Keep ${modifier}` : 'Continue',
-                'end of road': modifier ? `At end of road, turn ${modifier}` : 'Continue',
-                'continue': modifier ? `Continue ${modifier}` : 'Continue',
+                'fork': step.modifier ? `Keep ${step.modifier}` : 'Continue',
+                'end of road': step.modifier ? `At end of road, turn ${step.modifier}` : 'Continue',
+                'continue': step.modifier ? `Continue ${step.modifier}` : 'Continue',
             };
 
-            let instruction = turnMap[type] || type;
-            if (name) {
-                instruction += ` onto ${name}`;
+            let instruction = turnMap[step.instruction] || step.instruction || '';
+            if (step.name && !instruction.includes(step.name)) {
+                instruction += ` onto ${step.name}`;
             }
-            return instruction;
+            return instruction || 'Continue';
         }
 
         const warnings = [];
@@ -1197,7 +1114,7 @@ function initPrintRoute() {
 
         let directionsHTML = '';
         directions.forEach((step, i) => {
-            const instruction = formatInstruction(step.instruction, step.modifier, step.name);
+            const instruction = formatInstruction(step);
             const stepDist = formatDistance(step.distance);
             const stepDur = formatDuration(step.duration);
             directionsHTML += `
