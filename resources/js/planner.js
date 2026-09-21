@@ -10,9 +10,9 @@ let waypoints = [];
 let vehicleProfile = {
     type: 'truck',
     weight_kg: null,
-    height_cm: null,
-    width_cm: null,
-    length_cm: null,
+    height_m: null,
+    width_m: null,
+    length_m: null,
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -246,19 +246,19 @@ function initVehicleProfile() {
 
     if (heightInput) {
         heightInput.addEventListener('input', () => {
-            vehicleProfile.height_cm = heightInput.value ? parseInt(heightInput.value) : null;
+            vehicleProfile.height_m = heightInput.value ? parseFloat(heightInput.value) : null;
         });
     }
 
     if (widthInput) {
         widthInput.addEventListener('input', () => {
-            vehicleProfile.width_cm = widthInput.value ? parseInt(widthInput.value) : null;
+            vehicleProfile.width_m = widthInput.value ? parseFloat(widthInput.value) : null;
         });
     }
 
     if (lengthInput) {
         lengthInput.addEventListener('input', () => {
-            vehicleProfile.length_cm = lengthInput.value ? parseInt(lengthInput.value) : null;
+            vehicleProfile.length_m = lengthInput.value ? parseFloat(lengthInput.value) : null;
         });
     }
 }
@@ -405,9 +405,9 @@ function initSaveRoute() {
             waypoints: waypoints,
             vehicle_type: vehicleProfile.type,
             vehicle_weight_kg: vehicleProfile.weight_kg,
-            vehicle_height_cm: vehicleProfile.height_cm,
-            vehicle_width_cm: vehicleProfile.width_cm,
-            vehicle_length_cm: vehicleProfile.length_cm,
+            vehicle_height_m: vehicleProfile.height_m,
+            vehicle_width_m: vehicleProfile.width_m,
+            vehicle_length_m: vehicleProfile.length_m,
             total_distance_km: Math.round(currentRoute.distance / 1000 * 100) / 100,
             total_duration_minutes: Math.round(currentRoute.duration / 60),
             route_geometry: currentRoute.geometry,

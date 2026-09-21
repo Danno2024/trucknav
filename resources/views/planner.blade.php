@@ -1,5 +1,11 @@
 <x-app-layout>
+    @push('styles')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    @endpush
+
+    @push('scripts')
+    @vite(['resources/js/planner.js'])
+    @endpush
 
     <style>
         .planner-layout {
@@ -102,7 +108,7 @@
                             <select id="vehicle-type" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
                                 <option value="truck">Truck</option>
                                 <option value="bus">Bus</option>
-                                <option value="coach">coach</option>
+                                <option value="coach">Coach</option>
                             </select>
                         </div>
                         <div>
@@ -111,18 +117,18 @@
                                 class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
                         </div>
                         <div>
-                            <label for="vehicle-height" class="block text-xs font-medium text-gray-600 mb-1">Height (cm)</label>
-                            <input type="number" id="vehicle-height" placeholder="e.g. 460" min="0"
+                            <label for="vehicle-height" class="block text-xs font-medium text-gray-600 mb-1">Height (m)</label>
+                            <input type="number" id="vehicle-height" placeholder="e.g. 4.6" min="0" step="0.1"
                                 class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
                         </div>
                         <div>
-                            <label for="vehicle-width" class="block text-xs font-medium text-gray-600 mb-1">Width (cm)</label>
-                            <input type="number" id="vehicle-width" placeholder="e.g. 250" min="0"
+                            <label for="vehicle-width" class="block text-xs font-medium text-gray-600 mb-1">Width (m)</label>
+                            <input type="number" id="vehicle-width" placeholder="e.g. 2.5" min="0" step="0.1"
                                 class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
                         </div>
                         <div>
-                            <label for="vehicle-length" class="block text-xs font-medium text-gray-600 mb-1">Length (cm)</label>
-                            <input type="number" id="vehicle-length" placeholder="e.g. 1650" min="0"
+                            <label for="vehicle-length" class="block text-xs font-medium text-gray-600 mb-1">Length (m)</label>
+                            <input type="number" id="vehicle-length" placeholder="e.g. 16.5" min="0" step="0.1"
                                 class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
                         </div>
                     </div>
@@ -178,8 +184,4 @@
     <script>
         window.__restrictions = @json($restrictions);
     </script>
-
-    @push('scripts')
-    <script type="module" src="{{ asset('resources/js/planner.js') }}"></script>
-    @endpush
 </x-app-layout>
