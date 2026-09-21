@@ -449,7 +449,7 @@ function initMapClick() {
 }
 
 const MAX_AVOID_ATTEMPTS = 3;
-const AVOID_OFFSET_METERS = 800;
+const AVOID_OFFSET_METERS = 1500;
 
 async function tryAutoRoute() {
     if (!originMarker || !destinationMarker) return;
@@ -467,7 +467,6 @@ async function tryAutoRoute() {
         hideRestrictionWarnings();
 
         let routeResult = await getRoute(baseWaypoints, 'car');
-        let avoidPoints = [];
 
         for (let attempt = 0; attempt < MAX_AVOID_ATTEMPTS; attempt++) {
             const restrictions = window.__restrictions || [];
@@ -478,34 +477,44 @@ async function tryAutoRoute() {
             const criticalWarnings = warnings.filter(w => w.severity === 'critical' || w.severity === 'high');
             if (criticalWarnings.length === 0) break;
 
-            console.log(`[TruckNav] Attempt ${attempt + 1}: ${criticalWarnings.length} restrictions on route, rerouting around...`);
+            console.log(`[TruckNav] Attempt ${attempt + 1}: ${criticalWarnings.length} hazard(s) on route, rerouting around...`);
+
+            let bestRoute = null;
+            let bestWarningCount = criticalWarnings.length;
 
             for (const warning of criticalWarnings) {
                 const restriction = warning.restriction;
-                const avoidPt = calculateAvoidWaypoint(routeResult.geometry, restriction.latitude, restriction.longitude);
-                if (avoidPt) {
-                    avoidPoints.push(avoidPt);
-                    console.log(`[TruckNav]   Adding avoid waypoint at ${avoidPt.lat.toFixed(5)}, ${avoidPt.lng.toFixed(5)} for: ${restriction.address}`);
+                const offsetPoints = calculateBothSideOffsets(routeResult.geometry, restriction.latitude, restriction.longitude);
+
+                for (const offsetPt of offsetPoints) {
+                    const trialWaypoints = buildRerouteWaypoints(baseWaypoints, [offsetPt]);
+
+                    try {
+                        const trialRoute = await getRoute(trialWaypoints, 'car');
+                        const trialWarnings = checkRouteForRestrictions(trialRoute.geometry, restrictions, vehicleProfile);
+                        const trialCritical = trialWarnings.filter(w => w.severity === 'critical' || w.severity === 'high');
+
+                        console.log(`[TruckNav]   Try offset (${offsetPt.lat.toFixed(4)}, ${offsetPt.lng.toFixed(4)}): ${trialCritical.length} hazard(s), distance: ${Math.round(trialRoute.distance / 1000)}km`);
+
+                        if (trialCritical.length < bestWarningCount) {
+                            bestWarningCount = trialCritical.length;
+                            bestRoute = trialRoute;
+                        }
+
+                        if (trialCritical.length === 0) break;
+                    } catch (e) {
+                        console.log(`[TruckNav]   Offset failed: ${e.message}`);
+                    }
                 }
+
+                if (bestWarningCount === 0) break;
             }
 
-            const rerouteWaypoints = [];
-            rerouteWaypoints.push(baseWaypoints[0]);
-
-            for (const wp of baseWaypoints.slice(1, -1)) {
-                rerouteWaypoints.push(wp);
-            }
-
-            for (const ap of avoidPoints) {
-                rerouteWaypoints.push(ap);
-            }
-
-            rerouteWaypoints.push(baseWaypoints[baseWaypoints.length - 1]);
-
-            try {
-                routeResult = await getRoute(rerouteWaypoints, 'car');
-            } catch {
-                console.log('[TruckNav] Reroute failed, keeping previous route');
+            if (bestRoute && bestWarningCount < criticalWarnings.length) {
+                routeResult = bestRoute;
+                console.log(`[TruckNav]   Improved route found: ${bestWarningCount} hazard(s) remaining`);
+            } else {
+                console.log('[TruckNav]   No better route found, keeping current');
                 break;
             }
         }
@@ -523,7 +532,7 @@ async function tryAutoRoute() {
     }
 }
 
-function calculateAvoidWaypoint(routeGeometry, restrictionLat, restrictionLng) {
+function calculateBothSideOffsets(routeGeometry, restrictionLat, restrictionLng) {
     let bestSegIdx = 0;
     let bestDist = Infinity;
 
@@ -543,20 +552,32 @@ function calculateAvoidWaypoint(routeGeometry, restrictionLat, restrictionLng) {
     const dLat = segLat2 - segLat1;
     const dLng = segLng2 - segLng1;
     const len = Math.sqrt(dLat * dLat + dLng * dLng);
-    if (len === 0) return null;
+    if (len === 0) return [];
 
     const perpLat = -dLng / len;
     const perpLng = dLat / len;
-
     const offsetDeg = AVOID_OFFSET_METERS / 111320;
 
-    const dotProduct = perpLat * (restrictionLat - segLat1) + perpLng * (restrictionLng - segLng1);
-    const direction = dotProduct >= 0 ? -1 : 1;
+    return [
+        { lat: restrictionLat + perpLat * offsetDeg, lng: restrictionLng + perpLng * offsetDeg },
+        { lat: restrictionLat - perpLat * offsetDeg, lng: restrictionLng - perpLng * offsetDeg },
+    ];
+}
 
-    return {
-        lat: restrictionLat + direction * perpLat * offsetDeg,
-        lng: restrictionLng + direction * perpLng * offsetDeg,
-    };
+function buildRerouteWaypoints(baseWaypoints, avoidPoints) {
+    const result = [];
+    result.push(baseWaypoints[0]);
+
+    for (const ap of avoidPoints) {
+        result.push(ap);
+    }
+
+    for (let i = 1; i < baseWaypoints.length - 1; i++) {
+        result.push(baseWaypoints[i]);
+    }
+
+    result.push(baseWaypoints[baseWaypoints.length - 1]);
+    return result;
 }
 
 function updateRouteSummary(route) {
