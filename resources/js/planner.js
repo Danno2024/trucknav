@@ -25,14 +25,13 @@ function recheckRestrictions() {
     const restrictions = window.__restrictions || [];
     console.log('[TruckNav] Re-checking restrictions with profile:', vehicleProfile);
     console.log('[TruckNav] Restrictions count:', restrictions.length);
-    restrictions.forEach(r => {
-        console.log(`[TruckNav]   - ${r.restriction_type} at ${r.latitude},${r.longitude} (${r.address}) status=${r.status}`);
-    });
     hideRestrictionWarnings();
     const warnings = checkRouteForRestrictions(currentRoute.geometry, restrictions, vehicleProfile);
     console.log('[TruckNav] Warnings found:', warnings.length);
     if (warnings.length > 0) {
         showRestrictionWarnings(warnings);
+    } else {
+        showNoWarnings();
     }
 }
 
@@ -716,6 +715,43 @@ function hideRestrictionWarnings() {
     if (container) {
         container.innerHTML = '';
         container.classList.add('hidden');
+    }
+}
+
+function showNoWarnings() {
+    const container = document.getElementById('route-warnings');
+    if (!container) return;
+
+    const hasVehicleProfile = vehicleProfile.height_m || vehicleProfile.width_m || vehicleProfile.weight_kg;
+
+    if (hasVehicleProfile) {
+        container.innerHTML = `
+            <div class="border-l-4 border-green-400 p-3 mb-2 rounded-r-lg bg-green-50 text-green-800">
+                <div class="flex items-start gap-2">
+                    <svg class="w-5 h-5 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <div>
+                        <div class="font-semibold text-sm">No hazards on route</div>
+                        <div class="text-xs mt-0.5">No known restrictions conflict with your vehicle dimensions.</div>
+                    </div>
+                </div>
+            </div>`;
+        container.classList.remove('hidden');
+    } else {
+        container.innerHTML = `
+            <div class="border-l-4 border-blue-400 p-3 mb-2 rounded-r-lg bg-blue-50 text-blue-800">
+                <div class="flex items-start gap-2">
+                    <svg class="w-5 h-5 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                        <div class="font-semibold text-sm">Enter vehicle dimensions for hazard warnings</div>
+                        <div class="text-xs mt-0.5">Add your vehicle height, width and weight above to check for restrictions.</div>
+                    </div>
+                </div>
+            </div>`;
+        container.classList.remove('hidden');
     }
 }
 

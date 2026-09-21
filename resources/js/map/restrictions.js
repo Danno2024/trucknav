@@ -45,26 +45,38 @@ function isRouteNearRestriction(routeGeometry, restrictionLat, restrictionLng) {
 }
 
 function doesRestrictionApply(restriction, vehicleProfile) {
-    if (!vehicleProfile) return true;
+    if (!vehicleProfile) return false;
 
-    const typeMap = {
-        height_limit: vehicleProfile.height_m,
-        low_bridge: vehicleProfile.height_m,
-        width_limit: vehicleProfile.width_m,
-        weight_limit: vehicleProfile.weight_kg ? vehicleProfile.weight_kg / 1000 : null,
-    };
+    switch (restriction.restriction_type) {
+        case 'low_bridge':
+        case 'height_limit': {
+            if (vehicleProfile.height_m == null) return false;
+            const limit = parseFloat(restriction.description);
+            if (isNaN(limit)) return true;
+            return vehicleProfile.height_m > limit;
+        }
 
-    const vehicleValue = typeMap[restriction.restriction_type];
-    if (vehicleValue === null || vehicleValue === undefined) return true;
+        case 'width_limit': {
+            if (vehicleProfile.width_m == null) return false;
+            const limit = parseFloat(restriction.description);
+            if (isNaN(limit)) return true;
+            return vehicleProfile.width_m > limit;
+        }
 
-    const restrictionValue = parseFloat(restriction.description);
-    if (isNaN(restrictionValue)) return true;
+        case 'weight_limit': {
+            if (vehicleProfile.weight_kg == null) return false;
+            const limitTonnes = parseFloat(restriction.description);
+            if (isNaN(limitTonnes)) return true;
+            const vehicleTonnes = vehicleProfile.weight_kg / 1000;
+            return vehicleTonnes > limitTonnes;
+        }
 
-    if (restriction.restriction_type === 'weight_limit') {
-        return vehicleValue > restrictionValue;
+        case 'road_ban':
+        case 'rough_road':
+        case 'other':
+        default:
+            return true;
     }
-
-    return vehicleValue > restrictionValue;
 }
 
 export function checkRouteForRestrictions(routeGeometry, restrictions, vehicleProfile) {
