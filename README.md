@@ -99,10 +99,10 @@ This project is currently in active development. The public-facing website and a
 
 - [x] Phase 1: Public website, branding, and authentication
 - [x] Phase 2: Database models and migrations
-- [ ] Phase 3: Route planner with OpenStreetMap/OSRM
-- [ ] Phase 4: Road restrictions (user-reported hazards)
-- [ ] Phase 5: Dashboard and saved routes
-- [ ] Phase 6: PayPal donations and review system
+- [x] Phase 3: Route planner with OpenStreetMap/OSRM
+- [x] Phase 4: Road restrictions (user-reported hazards)
+- [x] Phase 5: Dashboard and saved routes
+- [x] Phase 6: PayPal donations and review system
 - [ ] Phase 7: Polish and deployment
 
 ## Contributing
