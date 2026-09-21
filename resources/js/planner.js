@@ -18,8 +18,26 @@ let vehicleProfile = {
     length_m: null,
 };
 
+function recheckRestrictions() {
+    if (!currentRoute) return;
+    const restrictions = window.__restrictions || [];
+    console.log('[TruckNav] Re-checking restrictions with profile:', vehicleProfile);
+    console.log('[TruckNav] Restrictions count:', restrictions.length);
+    restrictions.forEach(r => {
+        console.log(`[TruckNav]   - ${r.restriction_type} at ${r.latitude},${r.longitude} (${r.address}) status=${r.status}`);
+    });
+    hideRestrictionWarnings();
+    const warnings = checkRouteForRestrictions(currentRoute.geometry, restrictions, vehicleProfile);
+    console.log('[TruckNav] Warnings found:', warnings.length);
+    if (warnings.length > 0) {
+        showRestrictionWarnings(warnings);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    if (!document.getElementById('map')) return;
+    const mapEl = document.getElementById('map');
+    console.log('[TruckNav] DOMContentLoaded, map element:', !!mapEl, 'restrictions:', window.__restrictions ? window.__restrictions.length : 'undefined');
+    if (!mapEl) return;
 
     map = initMap('map', [-25.2744, 133.7751], 5);
 
@@ -307,30 +325,35 @@ function initVehicleProfile() {
     if (typeSelect) {
         typeSelect.addEventListener('change', () => {
             vehicleProfile.type = typeSelect.value;
+            recheckRestrictions();
         });
     }
 
     if (weightInput) {
         weightInput.addEventListener('input', () => {
             vehicleProfile.weight_kg = weightInput.value ? parseInt(weightInput.value) : null;
+            recheckRestrictions();
         });
     }
 
     if (heightInput) {
         heightInput.addEventListener('input', () => {
             vehicleProfile.height_m = heightInput.value ? parseFloat(heightInput.value) : null;
+            recheckRestrictions();
         });
     }
 
     if (widthInput) {
         widthInput.addEventListener('input', () => {
             vehicleProfile.width_m = widthInput.value ? parseFloat(widthInput.value) : null;
+            recheckRestrictions();
         });
     }
 
     if (lengthInput) {
         lengthInput.addEventListener('input', () => {
             vehicleProfile.length_m = lengthInput.value ? parseFloat(lengthInput.value) : null;
+            recheckRestrictions();
         });
     }
 }
@@ -438,16 +461,11 @@ async function tryAutoRoute() {
 
         updateRouteSummary(routeResult);
 
-        const restrictions = window.__restrictions || [];
-        const warnings = checkRouteForRestrictions(routeResult.geometry, restrictions, vehicleProfile);
-
-        if (warnings.length > 0) {
-            showRestrictionWarnings(warnings);
-        }
+        recheckRestrictions();
 
         showRouteActions(true);
     } catch (err) {
-        console.error('Routing error:', err);
+        console.error('[TruckNav] Routing error:', err);
         showRouteError('Could not calculate route. Please try different locations.');
     } finally {
         showRouteLoading(false);
@@ -495,7 +513,13 @@ function initSaveRoute() {
     const confirmBtn = document.getElementById('save-modal-confirm');
     const nameInput = document.getElementById('route-name-input');
     const modalError = document.getElementById('save-modal-error');
-    if (!saveBtn || !modal) return;
+
+    console.log('[TruckNav] initSaveRoute:', { saveBtn: !!saveBtn, modal: !!modal, backdrop: !!backdrop });
+
+    if (!saveBtn || !modal) {
+        console.warn('[TruckNav] Save button or modal not found in DOM');
+        return;
+    }
 
     function openModal() {
         nameInput.value = '';
@@ -603,8 +627,10 @@ function initSaveRoute() {
 }
 
 function loadRestrictions() {
-    if (typeof window.__restrictions !== 'undefined' && window.__restrictions.length > 0) {
-        window.__restrictions.forEach(restriction => {
+    const restrictions = window.__restrictions || [];
+    console.log('[TruckNav] Restrictions loaded:', restrictions.length, restrictions);
+    if (restrictions.length > 0) {
+        restrictions.forEach(restriction => {
             addRestrictionMarker(restriction);
         });
     }

@@ -185,9 +185,9 @@
         </div>
     </div>
 
-    <div id="save-modal" class="fixed inset-0 z-50 hidden">
+    <div id="save-modal" class="fixed inset-0 hidden" style="z-index: 10000;">
         <div class="absolute inset-0 bg-black/50" id="save-modal-backdrop"></div>
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-6 w-full max-w-md" style="z-index: 10001;">
             <h3 class="text-lg font-bold text-gray-900 mb-4">Save Route</h3>
             <div class="mb-4">
                 <label for="route-name-input" class="block text-sm font-medium text-gray-700 mb-1">Route Name</label>
@@ -209,6 +209,7 @@
     </div>
 
     <script>
-        window.__restrictions = @json($restrictions);
+        window.__restrictions = {!! json_encode($restrictions->toArray()) !!};
+        console.log('[TruckNav] Restrictions from server:', window.__restrictions.length, window.__restrictions);
     </script>
 </x-app-layout>

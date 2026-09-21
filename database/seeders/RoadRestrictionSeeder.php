@@ -12,9 +12,9 @@ class RoadRestrictionSeeder extends Seeder
         $restrictions = [
             [
                 'restriction_type' => 'low_bridge',
-                'address' => 'Laurel Street Bridge, Golden Square, VIC 3555',
-                'latitude' => -36.7833,
-                'longitude' => 144.2333,
+                'address' => 'Laurel Street Railway Bridge, Golden Square, VIC 3555',
+                'latitude' => -36.7724,
+                'longitude' => 144.2626,
                 'description' => '3.6m',
                 'severity' => 'critical',
                 'verified' => true,
