@@ -42,7 +42,7 @@ class AdminLoginController extends Controller
             }
 
             $request->session()->regenerate();
-            return redirect()->intended(route('admin.dashboard'));
+            return redirect()->to(route('admin.dashboard'));
         }
 
         return back()->withErrors([
