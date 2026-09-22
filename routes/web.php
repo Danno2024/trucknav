@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DonationController;
 use App\Http\Controllers\Admin\RestrictionController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\SavedRouteController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DonationController as PublicDonationController;
 use App\Http\Controllers\PlannerController;
@@ -77,6 +78,11 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    Route::get('/settings/system', [SettingsController::class, 'system'])->name('settings.system');
+    Route::put('/settings/system', [SettingsController::class, 'updateSystem'])->name('settings.system.update');
+    Route::get('/settings/paypal', [SettingsController::class, 'paypal'])->name('settings.paypal');
+    Route::put('/settings/paypal', [SettingsController::class, 'updatePaypal'])->name('settings.paypal.update');
 });
 
 require __DIR__.'/auth.php';
