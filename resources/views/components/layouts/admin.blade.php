@@ -7,7 +7,7 @@
     <title>TruckNav Admin</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700,800" rel="stylesheet" />
-    @vite(['resources/css/app.css'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         .admin-nav-link { @apply px-3 py-2 text-sm font-medium rounded-lg transition; }
         .admin-nav-link-active { @apply bg-maroon-50 text-maroon-700; }
