@@ -21,7 +21,7 @@ class ForumCategory extends Model
 
     public function threads(): HasMany
     {
-        return $this->hasMany(ForumThread::class);
+        return $this->hasMany(ForumThread::class, 'category_id');
     }
 
     public function getRouteKeyName(): string

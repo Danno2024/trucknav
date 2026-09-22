@@ -40,7 +40,7 @@ class ForumThread extends Model
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo(ForumCategory::class);
+        return $this->belongsTo(ForumCategory::class, 'category_id');
     }
 
     public function user(): BelongsTo
@@ -50,7 +50,7 @@ class ForumThread extends Model
 
     public function posts(): HasMany
     {
-        return $this->hasMany(ForumPost::class);
+        return $this->hasMany(ForumPost::class, 'thread_id');
     }
 
     public function getRouteKeyName(): string
