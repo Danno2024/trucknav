@@ -9,10 +9,10 @@
                         <circle cx="7.5" cy="18.5" r="2.5"/>
                         <circle cx="17.5" cy="18.5" r="2.5"/>
                     </svg>
-                    <span class="text-xl font-bold text-white">TruckNav</span>
+                    <span class="text-xl font-bold text-white">TruckRoute</span>
                 </div>
                 <p class="text-sm text-gray-400 max-w-md">
-                    Free route planning for heavy vehicle operators across Australia. Plan safe routes that avoid low bridges, weight restrictions, and road hazards.<br />Drive safe and arrive safe with TruckNav.
+                    Free route planning for heavy vehicle operators across Australia. Plan safe routes that avoid low bridges, weight restrictions, and road hazards.<br />Drive safe and arrive safe with TruckRoute.
                 </p>
             </div>
 
@@ -21,9 +21,9 @@
                 <ul class="space-y-2">
                     <li><a href="{{ url('/#features') }}" class="text-sm text-gray-400 hover:text-white transition-colors">Features</a></li>
                     <li><a href="{{ url('/#how-it-works') }}" class="text-sm text-gray-400 hover:text-white transition-colors">How It Works</a></li>
-                    <li><a href="{{ url('/#about') }}" class="text-sm text-gray-400 hover:text-white transition-colors">About TruckNav</a></li>
-                    <li><a href="{{ url('/#support') }}" class="text-sm text-gray-400 hover:text-white transition-colors">Support TruckNav</a></li>
-					<li><a href="#" class="text-sm text-gray-400 hover:text-white transition-colors">TruckNav Forums</a></li>
+                    <li><a href="{{ url('/#about') }}" class="text-sm text-gray-400 hover:text-white transition-colors">About TruckRoute</a></li>
+                    <li><a href="{{ url('/#support') }}" class="text-sm text-gray-400 hover:text-white transition-colors">Support TruckRoute</a></li>
+					<li><a href="#" class="text-sm text-gray-400 hover:text-white transition-colors">TruckRoute Forums</a></li>
                 </ul>
             </div>
 

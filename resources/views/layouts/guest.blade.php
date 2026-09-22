@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'TruckNav') }}</title>
+        <title>{{ config('app.name', 'TruckRoute') }}</title>
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
@@ -17,7 +17,7 @@
             <div>
                 <a href="/" class="flex items-center gap-2">
                     <x-application-logo class="w-12 h-12 text-maroon-700" />
-                    <span class="text-2xl font-bold text-maroon-800">TruckNav</span>
+                    <span class="text-2xl font-bold text-maroon-800">TruckRoute</span>
                 </a>
             </div>
 
@@ -26,7 +26,7 @@
             </div>
 
             <p class="mt-4 text-xs text-gray-500">
-                <a href="/" class="hover:text-maroon-700 transition-colors">&larr; Back to TruckNav</a>
+                <a href="/" class="hover:text-maroon-700 transition-colors">&larr; Back to TruckRoute</a>
             </p>
         </div>
     </body>

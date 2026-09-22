@@ -1,13 +1,13 @@
 <x-layouts.public>
-    <x-slot name="title">Donate - TruckNav</x-slot>
-    <x-slot name="metaDescription">Support TruckNav with a donation to help keep free heavy vehicle route planning alive for Australian drivers.</x-slot>
+    <x-slot name="title">Donate - TruckRoute</x-slot>
+    <x-slot name="metaDescription">Support TruckRoute with a donation to help keep free heavy vehicle route planning alive for Australian drivers.</x-slot>
 
     <section class="py-20 bg-gray-50">
         <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
-                <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Support TruckNav</h1>
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Support TruckRoute</h1>
                 <p class="text-lg text-gray-600">
-                    TruckNav is free and always will be. If it's helped you plan safer routes,
+                    TruckRoute is free and always will be. If it's helped you plan safer routes,
                     consider a small donation to help keep the project running.
                 </p>
             </div>

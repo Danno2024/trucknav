@@ -1,12 +1,13 @@
 <p align="center">
     <svg class="h-16 w-16 text-maroon-700 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-6.08A1 1 0 0 0 12.38 4H5.04a1 1 0 0 0-.96.71L2 11l2.9.97a1 1 0 0 1 .6.91V16"/>
-        <circle cx="6.5" cy="16" r="2.5"/>
-        <circle cx="17.5" cy="16" r="2.5"/>
+        <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h1"/>
+        <path d="M15 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 13.52 8H14"/>
+        <circle cx="7.5" cy="18.5" r="2.5"/>
+        <circle cx="17.5" cy="18.5" r="2.5"/>
     </svg>
 </p>
 
-<h1 align="center">TruckNav</h1>
+<h1 align="center">TruckRoute</h1>
 
 <p align="center">
     Free route planning for heavy vehicle operators across Australia.
@@ -18,11 +19,11 @@
 
 ---
 
-## About TruckNav
+## About TruckRoute
 
-TruckNav is a free route planning application built for Australian truck, bus, and coach drivers. It helps heavy vehicle operators plan safe routes that avoid low bridges, weight restrictions, height/width limits, and other road hazards.
+TruckRoute is a free route planning application built for Australian truck, bus, and coach drivers. It helps heavy vehicle operators plan safe routes that avoid low bridges, weight restrictions, height/width limits, and other road hazards.
 
-Unlike commercial fleet management tools, TruckNav is designed for **individual drivers** and is **completely free to use**. We ask that users leave a review or make a voluntary donation via PayPal to help keep the project running.
+Unlike commercial fleet management tools, TruckRoute is designed for **individual drivers** and is **completely free to use**. We ask that users leave a review or make a voluntary donation via PayPal to help keep the project running.
 
 ### Key Features
 
@@ -41,7 +42,7 @@ Unlike commercial fleet management tools, TruckNav is designed for **individual 
 | Backend | Laravel 13, PHP 8.3 |
 | Frontend | Blade + Alpine.js + Tailwind CSS |
 | Maps | Leaflet.js + OpenStreetMap |
-| Routing Engine | OSRM (Open Source Routing Machine) |
+| Routing Engine | Valhalla (truck) / OSRM (car) |
 | Geocoding | Nominatim (OpenStreetMap) |
 | Auth | Laravel Breeze |
 | Database | SQLite (dev) / MySQL (prod) |
@@ -76,6 +77,9 @@ php artisan key:generate
 # Run database migrations
 php artisan migrate
 
+# Seed the database (optional)
+php artisan db:seed
+
 # Install Node dependencies
 npm install
 
@@ -93,17 +97,21 @@ The application will be available at `http://localhost:8000`.
 
 ## Project Status
 
-This project is currently in active development. The public-facing website and authentication system are complete. The route planner and road restrictions features are under development.
+This project is currently in active development.
 
 ### Development Roadmap
 
 - [x] Phase 1: Public website, branding, and authentication
 - [x] Phase 2: Database models and migrations
-- [x] Phase 3: Route planner with OpenStreetMap/OSRM
+- [x] Phase 3: Route planner with OpenStreetMap/OSRM/Valhalla
 - [x] Phase 4: Road restrictions (user-reported hazards)
 - [x] Phase 5: Dashboard and saved routes
 - [x] Phase 6: PayPal donations and review system
 - [x] Phase 7: Polish and deployment
+- [x] Phase 8: Admin control panel
+- [ ] Community forums
+- [ ] Web installer
+- [ ] Production deployment
 
 ## Contributing
 
@@ -117,4 +125,4 @@ This project is open source and available under GNU GENERAL PUBLIC LICENSE Versi
 
 - Built by [Moorcam Development](https://www.moorcam.com.au), Australia
 - Routing data provided by [OpenStreetMap](https://www.openstreetmap.org/) contributors
-- Routing engine powered by [OSRM](http://project-osrm.org/)
+- Routing engine powered by [Valhalla](https://valhalla.github.io/) and [OSRM](http://project-osrm.org/)

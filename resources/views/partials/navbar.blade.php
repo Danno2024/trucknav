@@ -9,7 +9,7 @@
                         <circle cx="7.5" cy="18.5" r="2.5"/>
                         <circle cx="17.5" cy="18.5" r="2.5"/>
                     </svg>
-                    <span class="text-xl font-bold text-maroon-800">TruckNav</span>
+                    <span class="text-xl font-bold text-maroon-800">TruckRoute</span>
                 </a>
             </div>
 

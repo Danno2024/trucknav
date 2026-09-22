@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>TruckNav Admin</title>
+    <title>TruckRoute Admin</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700,800" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -28,7 +28,7 @@
                         <path d="M15 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 13.52 8H14"/>
                         <circle cx="7.5" cy="18.5" r="2.5"/><circle cx="17.5" cy="18.5" r="2.5"/>
                     </svg>
-                    <span class="text-lg font-bold text-maroon-800">TruckNav</span>
+                    <span class="text-lg font-bold text-maroon-800">TruckRoute</span>
                     <span class="px-2 py-0.5 bg-maroon-100 text-maroon-700 text-xs font-semibold rounded-full">Admin</span>
                 </a>
             </div>

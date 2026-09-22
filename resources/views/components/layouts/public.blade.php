@@ -6,7 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="description" content="{{ $metaDescription ?? 'Free route planning for heavy vehicle operators. Plan truck, bus and coach routes avoiding low bridges, weight restrictions and road hazards across Australia.' }}">
 
-        <title>{{ $title ?? config('app.name', 'TruckNav') }}</title>
+        <title>{{ $title ?? config('app.name', 'TruckRoute') }}</title>
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />

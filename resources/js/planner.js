@@ -23,11 +23,11 @@ let vehicleProfile = {
 function recheckRestrictions() {
     if (!currentRoute) return;
     const restrictions = window.__restrictions || [];
-    console.log('[TruckNav] Re-checking restrictions with profile:', vehicleProfile);
-    console.log('[TruckNav] Restrictions count:', restrictions.length);
+    console.log('[TruckRoute] Re-checking restrictions with profile:', vehicleProfile);
+    console.log('[TruckRoute] Restrictions count:', restrictions.length);
     hideRestrictionWarnings();
     const warnings = checkRouteForRestrictions(currentRoute.geometry, restrictions, vehicleProfile);
-    console.log('[TruckNav] Warnings found:', warnings.length);
+    console.log('[TruckRoute] Warnings found:', warnings.length);
     if (warnings.length > 0) {
         showRestrictionWarnings(warnings);
     } else {
@@ -37,7 +37,7 @@ function recheckRestrictions() {
 
 document.addEventListener('DOMContentLoaded', () => {
     const mapEl = document.getElementById('map');
-    console.log('[TruckNav] DOMContentLoaded, map element:', !!mapEl, 'restrictions:', window.__restrictions ? window.__restrictions.length : 'undefined');
+    console.log('[TruckRoute] DOMContentLoaded, map element:', !!mapEl, 'restrictions:', window.__restrictions ? window.__restrictions.length : 'undefined');
     if (!mapEl) return;
 
     map = initMap('map', [-25.2744, 133.7751], 5);
@@ -530,12 +530,12 @@ async function tryAutoRoute() {
         hideRestrictionWarnings();
 
         const engine = hasTruckDimensions(vehicleProfile) ? 'Valhalla (truck)' : 'OSRM (car)';
-        console.log(`[TruckNav] Routing via ${engine}`);
+        console.log(`[TruckRoute] Routing via ${engine}`);
 
         const routeResult = await getRoute(baseWaypoints, 'car', vehicleProfile);
 
         if (routeResult.engine === 'valhalla') {
-            console.log('[TruckNav] Valhalla automatically avoids height-restricted roads');
+            console.log('[TruckRoute] Valhalla automatically avoids height-restricted roads');
         }
 
         currentRoute = routeResult;
@@ -544,7 +544,7 @@ async function tryAutoRoute() {
         recheckRestrictions();
         showRouteActions(true);
     } catch (err) {
-        console.error('[TruckNav] Routing error:', err);
+        console.error('[TruckRoute] Routing error:', err);
         showRouteError('Could not calculate route. Please try different locations.');
     } finally {
         showRouteLoading(false);
@@ -608,10 +608,10 @@ function initSaveRoute() {
     const nameInput = document.getElementById('route-name-input');
     const modalError = document.getElementById('save-modal-error');
 
-    console.log('[TruckNav] initSaveRoute:', { saveBtn: !!saveBtn, modal: !!modal, backdrop: !!backdrop });
+    console.log('[TruckRoute] initSaveRoute:', { saveBtn: !!saveBtn, modal: !!modal, backdrop: !!backdrop });
 
     if (!saveBtn || !modal) {
-        console.warn('[TruckNav] Save button or modal not found in DOM');
+        console.warn('[TruckRoute] Save button or modal not found in DOM');
         return;
     }
 
@@ -688,7 +688,7 @@ function initSaveRoute() {
         try {
             const token = document.querySelector('meta[name="csrf-token"]').content;
             const saveUrl = window.__saveUrl || '/planner/save';
-            console.log('[TruckNav] Saving to:', saveUrl);
+            console.log('[TruckRoute] Saving to:', saveUrl);
             const response = await fetch(saveUrl, {
                 method: 'POST',
                 headers: {
@@ -699,11 +699,11 @@ function initSaveRoute() {
                 body: JSON.stringify(payload),
             });
 
-            console.log('[TruckNav] Save response status:', response.status, response.statusText);
+            console.log('[TruckRoute] Save response status:', response.status, response.statusText);
 
             if (!response.ok) {
                 const text = await response.text();
-                console.error('[TruckNav] Save error response:', text.substring(0, 500));
+                console.error('[TruckRoute] Save error response:', text.substring(0, 500));
                 modalError.textContent = `Server error (${response.status}). Please try again.`;
                 modalError.classList.remove('hidden');
                 return;
@@ -740,7 +740,7 @@ function initSaveRoute() {
 
 function loadRestrictions() {
     const restrictions = window.__restrictions || [];
-    console.log('[TruckNav] Restrictions loaded:', restrictions.length, restrictions);
+    console.log('[TruckRoute] Restrictions loaded:', restrictions.length, restrictions);
     if (restrictions.length > 0) {
         restrictions.forEach(restriction => {
             addRestrictionMarker(restriction);
@@ -830,7 +830,7 @@ function showNoWarnings() {
 }
 
 function loadSavedRoute(route) {
-    console.log('[TruckNav] Loading saved route:', route.name);
+    console.log('[TruckRoute] Loading saved route:', route.name);
 
     const originIcon = L.divIcon({
         className: 'origin-marker',
@@ -1223,7 +1223,7 @@ function initPrintRoute() {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>TruckNav Route Directions</title>
+    <title>TruckRoute Route Directions</title>
     <style>
         body { font-family: 'Inter', Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; color: #111; }
         h1 { color: #ab1d44; font-size: 22px; margin-bottom: 4px; }
@@ -1242,7 +1242,7 @@ function initPrintRoute() {
     </style>
 </head>
 <body>
-    <h1>TruckNav - Route Directions</h1>
+    <h1>TruckRoute - Route Directions</h1>
     <div class="subtitle">Printed ${dateStr} at ${timeStr}</div>
 
     <div class="route-info">
@@ -1283,9 +1283,9 @@ function initPrintRoute() {
     </table>
 
     <div class="footer">
-        <strong>TruckNav</strong> - Heavy Vehicle Route Planning for Australia<br>
+        <strong>TruckRoute</strong> - Heavy Vehicle Route Planning for Australia<br>
         Drive safe. Check actual road conditions before travel.<br>
-        Powered by TruckNav
+        Powered by TruckRoute
     </div>
 </body>
 </html>`;

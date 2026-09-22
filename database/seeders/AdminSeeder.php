@@ -13,7 +13,7 @@ class AdminSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'admin@trucknav.com.au'],
             [
-                'name' => 'TruckNav Admin',
+                'name' => 'TruckRoute Admin',
                 'password' => Hash::make('admin123'),
                 'role' => 'admin',
                 'is_active' => true,

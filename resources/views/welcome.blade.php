@@ -1,5 +1,5 @@
 <x-layouts.public>
-    <x-slot name="title">TruckNav - Free Route Planning for Heavy Vehicles</x-slot>
+    <x-slot name="title">TruckRoute - Free Route Planning for Heavy Vehicles</x-slot>
     <x-slot name="metaDescription">Free route planning for Australian truck, bus and coach drivers. Plan safe routes avoiding low bridges, weight restrictions and road hazards.</x-slot>
 
     {{-- Hero Section --}}
@@ -30,7 +30,7 @@
                         See Features
                     </a>
                 </div>
-                <p class="mt-6 text-sm text-maroon-300">No credit card required. Free forever for Australian drivers.</p>
+                <p class="mt-6 text-sm text-maroon-300">No credit card required. Free forever for Australian Truckies.</p>
             </div>
         </div>
     </section>
@@ -63,7 +63,7 @@
                         </svg>
                     </div>
                     <h3 class="text-xl font-semibold text-gray-900 mb-3">Multi-Stop Planning</h3>
-                    <p class="text-gray-600">Add multiple stops and let TruckNav optimise the order for the most efficient route. Save time and fuel on every trip.</p>
+                    <p class="text-gray-600">Add multiple stops and let TruckRoute optimise the order for the most efficient route. Save time and fuel on every trip.</p>
                 </div>
 
                 {{-- Feature 3 --}}
@@ -108,7 +108,7 @@
                         </svg>
                     </div>
                     <h3 class="text-xl font-semibold text-gray-900 mb-3">Vehicle Profiles</h3>
-                    <p class="text-gray-600">Enter your truck, bus or coach dimensions once. TruckNav remembers and applies restrictions automatically for every route.</p>
+                    <p class="text-gray-600">Enter your truck, bus or coach dimensions once. TruckRoute remembers and applies restrictions automatically for every route.</p>
                 </div>
             </div>
         </div>
@@ -118,7 +118,7 @@
     <section id="how-it-works" class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How TruckNav Works</h2>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How TruckRoute Works</h2>
                 <p class="text-lg text-gray-600 max-w-2xl mx-auto">Three simple steps to plan your next safe heavy vehicle route.</p>
             </div>
 
@@ -128,7 +128,7 @@
                         <span class="text-2xl font-bold text-white">1</span>
                     </div>
                     <h3 class="text-xl font-semibold text-gray-900 mb-3">Enter Your Vehicle</h3>
-                    <p class="text-gray-600">Input your truck or bus dimensions, such as height, weight, width, and length. TruckNav uses these to find safe routes.</p>
+                    <p class="text-gray-600">Input your truck or bus dimensions, such as height, weight, width, and length. TruckRoute uses these to find safe routes.</p>
                 </div>
 
                 <div class="text-center">
@@ -136,7 +136,7 @@
                         <span class="text-2xl font-bold text-white">2</span>
                     </div>
                     <h3 class="text-xl font-semibold text-gray-900 mb-3">Plan Your Route</h3>
-                    <p class="text-gray-600">Enter your origin, destination, and any stops. TruckNav calculates the safest, most efficient route for your vehicle.</p>
+                    <p class="text-gray-600">Enter your origin, destination, and any stops. TruckRoute calculates the safest, most efficient route for your vehicle.</p>
                 </div>
 
                 <div class="text-center">
@@ -155,12 +155,12 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
-                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Built by Drivers, for Drivers</h2>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Built by Truckies, for Truckies</h2>
                     <p class="text-lg text-gray-600 mb-4">
-                        TruckNav was created to solve a real problem: finding safe routes for heavy vehicles in Australia shouldn't be difficult or expensive.
+                        TruckRoute was created to solve a real problem: finding safe routes for heavy vehicles in Australia shouldn't be difficult or expensive.
                     </p>
                     <p class="text-lg text-gray-600 mb-4">
-                        We believe every truck, bus, and coach driver deserves access to route planning that accounts for their vehicle's specific restrictions. That's why TruckNav is free to use.
+                        We believe every truck, bus, and coach driver deserves access to route planning that accounts for their vehicle's specific restrictions. That's why TruckRoute is free to use.
                     </p>
                     <p class="text-lg text-gray-600 mb-6">
                         Our road restriction data comes from the community; drivers like you who report low bridges, weight limits, and other hazards they encounter on the road.
@@ -197,9 +197,9 @@
     {{-- Support / Donate Section --}}
     <section id="support" class="py-20 bg-maroon-800 text-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-3xl md:text-4xl font-bold mb-6">Support TruckNav</h2>
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">Support TruckRoute</h2>
             <p class="text-lg text-maroon-200 max-w-2xl mx-auto mb-8">
-                TruckNav is free and always will be. If it's helped you plan a safer route, consider leaving a review or making a small donation to help keep the project running.
+                TruckRoute is free and always will be. If it's helped you plan a safer route, consider leaving a review or making a small donation to help keep the project running.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="{{ route('donate') }}" class="inline-flex items-center justify-center px-8 py-3 bg-white text-maroon-800 font-semibold rounded-lg hover:bg-maroon-50 transition-colors text-lg">
@@ -219,7 +219,7 @@
     <section class="py-16 bg-white">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-3xl font-bold text-gray-900 mb-4">Ready to Plan Your First Safe Route?</h2>
-            <p class="text-lg text-gray-600 mb-8">Join Australian drivers who are already using TruckNav to plan safer, more efficient routes.</p>
+            <p class="text-lg text-gray-600 mb-8">Join Australian drivers who are already using TruckRoute to plan safer, more efficient routes.</p>
             <a href="{{ route('register') }}" class="inline-flex items-center justify-center px-8 py-3 bg-maroon-700 text-white font-semibold rounded-lg hover:bg-maroon-800 transition-colors text-lg">
                 Get Started Free
             </a>

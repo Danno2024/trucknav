@@ -169,7 +169,7 @@ export async function getRoute(waypoints, profile = 'car', vehicleProfile = null
         try {
             return await getValhallaRoute(waypoints, vehicleProfile);
         } catch (e) {
-            console.warn('[TruckNav] Valhalla failed, falling back to OSRM:', e.message);
+            console.warn('[TruckRoute] Valhalla failed, falling back to OSRM:', e.message);
             return await getOsrmRoute(waypoints);
         }
     }

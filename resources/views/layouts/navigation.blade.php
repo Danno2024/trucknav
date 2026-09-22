@@ -5,7 +5,7 @@
                 <div class="shrink-0 flex items-center">
                     <a href="/" class="flex items-center gap-2">
                         <x-application-logo class="block h-9 w-auto text-maroon-700" />
-                        <span class="text-lg font-bold text-maroon-800">TruckNav</span>
+                        <span class="text-lg font-bold text-maroon-800">TruckRoute</span>
                     </a>
                 </div>
 

@@ -38,7 +38,7 @@ class DonationController extends Controller
             'business' => $paypalBusiness,
             'amount' => $amount,
             'currency_code' => 'AUD',
-            'item_name' => 'TruckNav Donation',
+            'item_name' => 'TruckRoute Donation',
             'custom' => $donation->id,
             'no_note' => 1,
             'bn' => 'PP-donateBF:btn_donate_LG.gif:NonHosted',

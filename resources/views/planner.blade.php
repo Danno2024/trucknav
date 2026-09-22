@@ -305,7 +305,7 @@
         <div class="absolute inset-0 bg-black/50" id="review-modal-backdrop"></div>
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-6 w-full max-w-md" style="z-index: 10001;">
             <h3 id="review-modal-title" class="text-lg font-bold text-gray-900 mb-1">How was your experience?</h3>
-            <p class="text-sm text-gray-500 mb-4">Your feedback helps us improve TruckNav for all drivers.</p>
+            <p class="text-sm text-gray-500 mb-4">Your feedback helps us improve TruckRoute for all drivers.</p>
             <div id="review-stars" class="flex gap-1 mb-4" role="radiogroup" aria-label="Rating">
                 <button type="button" class="review-star text-3xl text-gray-300 hover:text-yellow-400 transition" data-rating="1" role="radio" aria-checked="false" aria-label="1 star">&#9733;</button>
                 <button type="button" class="review-star text-3xl text-gray-300 hover:text-yellow-400 transition" data-rating="2" role="radio" aria-checked="false" aria-label="2 stars">&#9733;</button>
