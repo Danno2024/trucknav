@@ -1,9 +1,15 @@
 <?php
 
-use App\Http\Controllers\DonationController;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\DonationController;
+use App\Http\Controllers\Admin\RestrictionController;
+use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\SavedRouteController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\DonationController as PublicDonationController;
 use App\Http\Controllers\PlannerController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ReviewController as PublicReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -34,13 +40,36 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/donate', [DonationController::class, 'index'])->name('donate');
-Route::post('/donate', [DonationController::class, 'store'])->name('donate.store');
-Route::get('/donate/return', [DonationController::class, 'paypalReturn'])->name('donate.return');
-Route::get('/donate/cancel', [DonationController::class, 'paypalCancel'])->name('donate.cancel');
+Route::get('/donate', [PublicDonationController::class, 'index'])->name('donate');
+Route::post('/donate', [PublicDonationController::class, 'store'])->name('donate.store');
+Route::get('/donate/return', [PublicDonationController::class, 'paypalReturn'])->name('donate.return');
+Route::get('/donate/cancel', [PublicDonationController::class, 'paypalCancel'])->name('donate.cancel');
 
 Route::middleware('auth')->group(function () {
-    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::post('/reviews', [PublicReviewController::class, 'store'])->name('reviews.store');
+});
+
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminController::class, 'index'])->name('dashboard');
+
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+    Route::get('/restrictions', [RestrictionController::class, 'index'])->name('restrictions.index');
+    Route::get('/restrictions/{restriction}', [RestrictionController::class, 'show'])->name('restrictions.show');
+    Route::put('/restrictions/{restriction}', [RestrictionController::class, 'update'])->name('restrictions.update');
+    Route::post('/restrictions/{restriction}/verify', [RestrictionController::class, 'verify'])->name('restrictions.verify');
+    Route::delete('/restrictions/{restriction}', [RestrictionController::class, 'destroy'])->name('restrictions.destroy');
+
+    Route::get('/routes', [SavedRouteController::class, 'index'])->name('routes.index');
+    Route::delete('/routes/{route}', [SavedRouteController::class, 'destroy'])->name('routes.destroy');
+
+    Route::get('/donations', [DonationController::class, 'index'])->name('donations.index');
+
+    Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 });
 
 require __DIR__.'/auth.php';
