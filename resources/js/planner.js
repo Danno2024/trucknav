@@ -284,14 +284,54 @@ function renderWaypointsList(container) {
     }
 
     container.innerHTML = waypoints.map((wp, i) => `
-        <div class="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg mb-2">
+        <div class="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg mb-2 cursor-grab active:cursor-grabbing waypoint-item" draggable="true" data-index="${i}">
             <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-gray-400 shrink-0 drag-handle" fill="currentColor" viewBox="0 0 24 24"><path d="M8 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm8-16a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>
                 <span class="text-xs font-medium text-white bg-blue-600 rounded-full w-6 h-6 flex items-center justify-center">${i + 1}</span>
-                <span class="text-sm text-gray-700 truncate max-w-[200px]">${wp.address}</span>
+                <span class="text-sm text-gray-700 truncate max-w-[180px]">${wp.address}</span>
             </div>
             <button type="button" class="text-red-500 hover:text-red-700 text-sm font-bold remove-waypoint" data-index="${i}">&times;</button>
         </div>
     `).join('');
+
+    let dragIndex = null;
+
+    container.querySelectorAll('.waypoint-item').forEach((item) => {
+        item.addEventListener('dragstart', (e) => {
+            dragIndex = parseInt(item.dataset.index);
+            item.classList.add('opacity-50');
+            e.dataTransfer.effectAllowed = 'move';
+        });
+
+        item.addEventListener('dragend', () => {
+            item.classList.remove('opacity-50');
+            dragIndex = null;
+            container.querySelectorAll('.waypoint-item').forEach(el => el.classList.remove('border-t-2', 'border-maroon-500'));
+        });
+
+        item.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            container.querySelectorAll('.waypoint-item').forEach(el => el.classList.remove('border-t-2', 'border-maroon-500'));
+            item.classList.add('border-t-2', 'border-maroon-500');
+        });
+
+        item.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const dropIndex = parseInt(item.dataset.index);
+            if (dragIndex === null || dragIndex === dropIndex) return;
+
+            const movedWp = waypoints.splice(dragIndex, 1)[0];
+            waypoints.splice(dropIndex, 0, movedWp);
+
+            const movedMarker = waypointMarkers.splice(dragIndex, 1)[0];
+            waypointMarkers.splice(dropIndex, 0, movedMarker);
+
+            renumberWaypointMarkers();
+            renderWaypointsList(container);
+            tryAutoRoute();
+        });
+    });
 
     container.querySelectorAll('.remove-waypoint').forEach((btn) => {
         btn.addEventListener('click', () => {
