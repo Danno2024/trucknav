@@ -19,7 +19,7 @@
         $currentRoute = request()->route()->getName();
     @endphp
 
-    <nav class="bg-white border-b border-gray-200 shadow-sm">
+    <nav x-data="{ profileOpen: false, mobileOpen: false }" class="bg-white border-b border-gray-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center gap-6">
@@ -45,12 +45,12 @@
                 <div class="flex items-center gap-4">
                     <a href="{{ route('dashboard') }}" class="text-sm text-gray-500 hover:text-maroon-700 transition hidden sm:inline">&larr; Back to App</a>
 
-                    <div class="relative" x-data="{ open: false }">
-                        <button @click="open = !open" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-maroon-700 rounded-lg hover:bg-gray-50 transition" aria-haspopup="true">
+                    <div class="relative">
+                        <button @click="profileOpen = !profileOpen" @keydown.escape="profileOpen = false" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-maroon-700 rounded-lg hover:bg-gray-50 transition" aria-haspopup="true">
                             {{ Auth::user()->name }}
                             <svg class="ml-1 h-4 w-4 fill-current" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                         </button>
-                        <div x-show="open" @click.away="open = false" x-transition
+                        <div x-show="profileOpen" @click.away="profileOpen = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
                             class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                             <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Dashboard</a>
                             <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Profile</a>
@@ -72,7 +72,7 @@
             </div>
         </div>
 
-        <div x-data="{ mobileOpen: false }" x-show="mobileOpen" class="sm:hidden border-t border-gray-100">
+        <div x-show="mobileOpen" x-transition class="sm:hidden border-t border-gray-100">
             <div class="py-2 px-4 space-y-1">
                 <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ $currentRoute === 'admin.dashboard' ? 'bg-maroon-50 text-maroon-700' : 'text-gray-600 hover:bg-gray-50' }}">Dashboard</a>
                 <a href="{{ route('admin.users.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ str_starts_with($currentRoute, 'admin.users') ? 'bg-maroon-50 text-maroon-700' : 'text-gray-600 hover:bg-gray-50' }}">Users</a>
@@ -86,7 +86,7 @@
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8" x-data="{ mobileOpen: false }">
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         @if(session('success'))
             <div class="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm" role="alert">
                 {{ session('success') }}
