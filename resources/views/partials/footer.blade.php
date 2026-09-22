@@ -23,7 +23,7 @@
                     <li><a href="{{ url('/#how-it-works') }}" class="text-sm text-gray-400 hover:text-white transition-colors">How It Works</a></li>
                     <li><a href="{{ url('/#about') }}" class="text-sm text-gray-400 hover:text-white transition-colors">About TruckRoute</a></li>
                     <li><a href="{{ url('/#support') }}" class="text-sm text-gray-400 hover:text-white transition-colors">Support TruckRoute</a></li>
-					<li><a href="#" class="text-sm text-gray-400 hover:text-white transition-colors">TruckRoute Forums</a></li>
+					<li><a href="{{ route('forums.index') }}" class="text-sm text-gray-400 hover:text-white transition-colors">TruckRoute Forums</a></li>
                 </ul>
             </div>
 

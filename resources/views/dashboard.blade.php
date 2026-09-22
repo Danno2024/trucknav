@@ -97,6 +97,40 @@
                     </div>
                 </div>
             </div>
+
+            <div class="mt-6 bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-md font-semibold text-gray-900">Forum Activity</h4>
+                        <a href="{{ route('forums.index') }}" class="text-sm text-maroon-600 hover:text-maroon-700">View Forums</a>
+                    </div>
+
+                    @if ($forumThreads->count() > 0 || $forumPosts->count() > 0)
+                        <div class="space-y-3">
+                            @foreach ($forumThreads as $thread)
+                                <a href="{{ route('forums.thread', $thread->slug) }}" class="block border border-gray-200 rounded-lg p-3 hover:border-maroon-300 hover:bg-maroon-50 transition">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs text-gray-400">Thread</span>
+                                        <span class="font-medium text-gray-900 text-sm">{{ Str::limit($thread->title, 60) }}</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500 mt-1">{{ $thread->category->name }} · {{ $thread->created_at->diffForHumans() }}</div>
+                                </a>
+                            @endforeach
+                            @foreach ($forumPosts as $post)
+                                <a href="{{ route('forums.thread', $post->thread->slug) }}#post-{{ $post->id }}" class="block border border-gray-200 rounded-lg p-3 hover:border-maroon-300 hover:bg-maroon-50 transition">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs text-gray-400">Reply</span>
+                                        <span class="font-medium text-gray-900 text-sm">in {{ Str::limit($post->thread->title, 50) }}</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500 mt-1">{{ $post->created_at->diffForHumans() }}</div>
+                                </a>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-sm text-gray-500">You haven't posted in the forums yet. <a href="{{ route('forums.index') }}" class="text-maroon-600 hover:underline">Join the conversation</a>.</p>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AdminForumController;
 use App\Http\Controllers\Admin\AdminLoginController;
 use App\Http\Controllers\Admin\DonationController;
 use App\Http\Controllers\Admin\RestrictionController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\Admin\SavedRouteController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DonationController as PublicDonationController;
+use App\Http\Controllers\ForumController;
 use App\Http\Controllers\PlannerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController as PublicReviewController;
@@ -24,8 +26,10 @@ Route::get('/dashboard', function () {
     $savedRoutesCount = $savedRoutes->count();
     $totalDistance = (float) $savedRoutes->sum('total_distance_km');
     $hazardsReported = $user->roadRestrictions()->count();
+    $forumThreads = $user->forumThreads()->latest()->limit(5)->get();
+    $forumPosts = $user->forumPosts()->latest()->limit(5)->get();
 
-    return view('dashboard', compact('savedRoutes', 'savedRoutesCount', 'totalDistance', 'hazardsReported'));
+    return view('dashboard', compact('savedRoutes', 'savedRoutesCount', 'totalDistance', 'hazardsReported', 'forumThreads', 'forumPosts'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -49,6 +53,20 @@ Route::get('/donate/cancel', [PublicDonationController::class, 'paypalCancel'])-
 
 Route::middleware('auth')->group(function () {
     Route::post('/reviews', [PublicReviewController::class, 'store'])->name('reviews.store');
+});
+
+Route::prefix('forums')->name('forums.')->group(function () {
+    Route::get('/', [ForumController::class, 'index'])->name('index');
+    Route::get('/create', [ForumController::class, 'create'])->name('create');
+    Route::get('/{category}', [ForumController::class, 'category'])->name('category');
+    Route::get('/thread/{thread}', [ForumController::class, 'thread'])->name('thread');
+});
+
+Route::middleware('auth')->prefix('forums')->name('forums.')->group(function () {
+    Route::post('/thread', [ForumController::class, 'storeThread'])->name('thread.store');
+    Route::post('/thread/{thread}/reply', [ForumController::class, 'storeReply'])->name('reply.store');
+    Route::put('/post/{post}', [ForumController::class, 'updatePost'])->name('post.update');
+    Route::delete('/post/{post}', [ForumController::class, 'destroyPost'])->name('post.destroy');
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -80,6 +98,29 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    Route::get('/forums', [AdminForumController::class, 'dashboard'])->name('forums.dashboard');
+
+    Route::prefix('forums/categories')->name('forums.categories.')->group(function () {
+        Route::get('/', [AdminForumController::class, 'categoriesIndex'])->name('index');
+        Route::get('/create', [AdminForumController::class, 'categoriesCreate'])->name('create');
+        Route::post('/', [AdminForumController::class, 'categoriesStore'])->name('store');
+        Route::get('/{category}/edit', [AdminForumController::class, 'categoriesEdit'])->name('edit');
+        Route::put('/{category}', [AdminForumController::class, 'categoriesUpdate'])->name('update');
+        Route::delete('/{category}', [AdminForumController::class, 'categoriesDestroy'])->name('destroy');
+    });
+
+    Route::prefix('forums/threads')->name('forums.threads.')->group(function () {
+        Route::get('/', [AdminForumController::class, 'threadsIndex'])->name('index');
+        Route::delete('/{thread}', [AdminForumController::class, 'threadsDestroy'])->name('destroy');
+        Route::post('/{thread}/pin', [AdminForumController::class, 'threadsPin'])->name('pin');
+        Route::post('/{thread}/lock', [AdminForumController::class, 'threadsLock'])->name('lock');
+    });
+
+    Route::prefix('forums/posts')->name('forums.posts.')->group(function () {
+        Route::get('/', [AdminForumController::class, 'postsIndex'])->name('index');
+        Route::delete('/{post}', [AdminForumController::class, 'postsDestroy'])->name('destroy');
+    });
 
     Route::get('/settings/system', [SettingsController::class, 'system'])->name('settings.system');
     Route::put('/settings/system', [SettingsController::class, 'updateSystem'])->name('settings.system.update');

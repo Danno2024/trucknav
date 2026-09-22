@@ -19,6 +19,9 @@
                     <x-nav-link :href="route('donate')" :active="request()->routeIs('donate')">
                         {{ __('Donate') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('forums.index')" :active="request()->routeIs('forums.*')">
+                        {{ __('Forums') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -73,6 +76,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('donate')" :active="request()->routeIs('donate')">
                 {{ __('Donate') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('forums.index')" :active="request()->routeIs('forums.*')">
+                {{ __('Forums') }}
             </x-responsive-nav-link>
         </div>
 
