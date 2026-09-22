@@ -19,7 +19,7 @@ class CheckMaintenance
             return $next($request);
         }
 
-        if ($request->is('admin*') || $request->is('login') || $request->is('register')) {
+        if ($request->is('admin*') || $request->is('login') || $request->is('register') || $request->is('password*') || $request->is('profile*')) {
             return $next($request);
         }
 
