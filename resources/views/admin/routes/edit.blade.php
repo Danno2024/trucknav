@@ -17,6 +17,7 @@
                     <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Route Name</label>
                     <input id="name" type="text" name="name" value="{{ old('name', $route->name) }}"
                         class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm" required>
+                    <p class="mt-1 text-xs text-gray-400">Change the name to save as a new route. Keep it the same to update this route.</p>
                 </div>
 
                 <div>

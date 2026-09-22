@@ -48,6 +48,16 @@ class SavedRouteController extends Controller
             'notes' => 'nullable|string|max:1000',
         ]);
 
+        if ($validated['name'] !== $route->name) {
+            $newRoute = $route->replicate();
+            $newRoute->name = $validated['name'];
+            $newRoute->created_at = now();
+            $newRoute->updated_at = now();
+            $newRoute->push();
+
+            return redirect()->route('admin.routes.index')->with('success', 'New route created from existing route.');
+        }
+
         $route->update($validated);
 
         return redirect()->route('admin.routes.index')->with('success', 'Route updated.');
