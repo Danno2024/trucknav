@@ -72,6 +72,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::delete('/restrictions/{restriction}', [RestrictionController::class, 'destroy'])->name('restrictions.destroy');
 
     Route::get('/routes', [SavedRouteController::class, 'index'])->name('routes.index');
+    Route::get('/routes/{route}/edit', [SavedRouteController::class, 'edit'])->name('routes.edit');
+    Route::put('/routes/{route}', [SavedRouteController::class, 'update'])->name('routes.update');
     Route::delete('/routes/{route}', [SavedRouteController::class, 'destroy'])->name('routes.destroy');
 
     Route::get('/donations', [DonationController::class, 'index'])->name('donations.index');

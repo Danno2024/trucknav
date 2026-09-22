@@ -46,6 +46,7 @@
                         </td>
                         <td class="px-5 py-4 text-sm text-gray-500 hidden lg:table-cell">{{ $route->created_at->format('d M Y') }}</td>
                         <td class="px-5 py-4 text-right">
+                            <a href="{{ route('admin.routes.edit', $route) }}" class="text-sm text-maroon-600 hover:text-maroon-700 font-medium mr-3">Edit</a>
                             <form method="POST" action="{{ route('admin.routes.destroy', $route) }}" onsubmit="return confirm('Delete this route?')" class="inline">
                                 @csrf
                                 @method('DELETE')

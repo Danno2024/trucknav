@@ -216,9 +216,22 @@ function initWaypointSearch() {
                         popupAnchor: [0, -14],
                     });
 
-                    const marker = L.marker([result.lat, result.lng], { icon: wpIcon })
+                    const marker = L.marker([result.lat, result.lng], { icon: wpIcon, draggable: true })
                         .bindPopup(`<strong>Stop ${index}</strong><br>${result.displayName}`)
                         .addTo(map);
+
+                    marker.on('dragend', (e) => {
+                        const pos = e.target.getLatLng();
+                        waypoints[index - 1].lat = pos.lat;
+                        waypoints[index - 1].lng = pos.lng;
+                        reverseGeocode(pos.lat, pos.lng).then((rev) => {
+                            waypoints[index - 1].address = rev.displayName;
+                            marker.setPopupContent(`<strong>Stop ${index}</strong><br>${rev.displayName}`);
+                            renumberWaypointMarkers();
+                            renderWaypointsList(document.getElementById('waypoints-list'));
+                        });
+                        tryAutoRoute();
+                    });
 
                     waypointMarkers.push(marker);
 
@@ -417,6 +430,7 @@ function initMapClick() {
                     const input = document.getElementById('origin-search');
                     if (input) input.value = rev.displayName;
                 });
+                tryAutoRoute();
             });
         } else if (!destinationMarker) {
             const icon = L.divIcon({
@@ -452,6 +466,7 @@ function initMapClick() {
                     const input = document.getElementById('destination-search');
                     if (input) input.value = rev.displayName;
                 });
+                tryAutoRoute();
             });
 
             tryAutoRoute();
@@ -797,6 +812,7 @@ function loadSavedRoute(route) {
         reverseGeocode(pos.lat, pos.lng).then((rev) => {
             document.getElementById('origin-search').value = rev.displayName;
         });
+        tryAutoRoute();
     });
 
     destinationMarker = L.marker([route.destination_lat, route.destination_lng], { icon: destIcon, draggable: true })
@@ -808,6 +824,7 @@ function loadSavedRoute(route) {
         reverseGeocode(pos.lat, pos.lng).then((rev) => {
             document.getElementById('destination-search').value = rev.displayName;
         });
+        tryAutoRoute();
     });
 
     document.getElementById('origin-search').value = route.origin_address;
@@ -826,9 +843,22 @@ function loadSavedRoute(route) {
                 popupAnchor: [0, -14],
             });
 
-            const marker = L.marker([wp.lat, wp.lng], { icon: wpIcon })
+            const marker = L.marker([wp.lat, wp.lng], { icon: wpIcon, draggable: true })
                 .bindPopup(`<strong>Stop ${i + 1}</strong><br>${wp.address}`)
                 .addTo(map);
+
+            marker.on('dragend', (e) => {
+                const pos = e.target.getLatLng();
+                waypoints[i].lat = pos.lat;
+                waypoints[i].lng = pos.lng;
+                reverseGeocode(pos.lat, pos.lng).then((rev) => {
+                    waypoints[i].address = rev.displayName;
+                    marker.setPopupContent(`<strong>Stop ${i + 1}</strong><br>${rev.displayName}`);
+                    renumberWaypointMarkers();
+                    renderWaypointsList(document.getElementById('waypoints-list'));
+                });
+                tryAutoRoute();
+            });
 
             waypointMarkers.push(marker);
         });

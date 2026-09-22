@@ -25,6 +25,34 @@ class SavedRouteController extends Controller
         return view('admin.routes.index', compact('routes'));
     }
 
+    public function edit(SavedRoute $route)
+    {
+        return view('admin.routes.edit', compact('route'));
+    }
+
+    public function update(Request $request, SavedRoute $route)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'origin_address' => 'required|string|max:255',
+            'origin_lat' => 'required|numeric',
+            'origin_lng' => 'required|numeric',
+            'destination_address' => 'required|string|max:255',
+            'destination_lat' => 'required|numeric',
+            'destination_lng' => 'required|numeric',
+            'vehicle_type' => 'required|string|max:50',
+            'vehicle_weight_kg' => 'nullable|integer|min:0',
+            'vehicle_height_m' => 'nullable|numeric|min:0|max:10',
+            'vehicle_width_m' => 'nullable|numeric|min:0|max:10',
+            'vehicle_length_m' => 'nullable|numeric|min:0|max:30',
+            'notes' => 'nullable|string|max:1000',
+        ]);
+
+        $route->update($validated);
+
+        return redirect()->route('admin.routes.index')->with('success', 'Route updated.');
+    }
+
     public function destroy(SavedRoute $route)
     {
         $route->delete();
