@@ -3,17 +3,18 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
 
 class SettingsController extends Controller
 {
     public function system()
     {
         $settings = [
-            'app_name' => config('app.name', 'TruckNav'),
+            'app_name' => config('app.name', 'TruckRoute'),
             'app_url' => config('app.url', ''),
-            'maintenance_mode' => config('app.maintenance', false),
+            'maintenance_mode' => Setting::getBool('maintenance_mode'),
+            'maintenance_message' => Setting::get('maintenance_message', 'We are currently performing scheduled maintenance. Please check back soon.'),
         ];
 
         return view('admin.settings.system', compact('settings'));
@@ -27,6 +28,9 @@ class SettingsController extends Controller
         ]);
 
         config(['app.name' => $request->app_name]);
+
+        Setting::set('maintenance_mode', $request->boolean('maintenance_mode') ? '1' : '0');
+        Setting::set('maintenance_message', $request->input('maintenance_message', ''));
 
         return back()->with('success', 'System settings updated.');
     }
