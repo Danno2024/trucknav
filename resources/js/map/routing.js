@@ -85,7 +85,14 @@ async function getValhallaRoute(waypoints, vehicleProfile) {
         throw new Error('No route found');
     }
 
-    const geometry = decodePolyline(trip.legs[0].shape);
+    const geometry = [];
+    trip.legs.forEach((leg, i) => {
+        const legCoords = decodePolyline(leg.shape);
+        if (i > 0 && legCoords.length > 0) {
+            legCoords.shift();
+        }
+        geometry.push(...legCoords);
+    });
 
     const legs = trip.legs.map(leg => ({
         distance: leg.summary.length * 1000,
