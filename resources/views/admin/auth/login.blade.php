@@ -15,8 +15,9 @@
             <div class="flex flex-col items-center mb-6">
                 <div class="flex items-center gap-2 mb-3">
                     <svg class="h-10 w-10 text-maroon-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-6.08A1 1 0 0 0 12.38 4H5.04a1 1 0 0 0-.96.71L2 11l2.9.97a1 1 0 0 1 .6.91V16"/>
-                        <circle cx="6.5" cy="16" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>
+                        <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h1"/>
+                        <path d="M15 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 13.52 8H14"/>
+                        <circle cx="7.5" cy="18.5" r="2.5"/><circle cx="17.5" cy="18.5" r="2.5"/>
                     </svg>
                     <span class="text-xl font-bold text-maroon-800">TruckNav</span>
                 </div>

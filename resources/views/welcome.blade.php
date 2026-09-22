@@ -6,9 +6,10 @@
     <section class="relative bg-gradient-to-br from-maroon-900 via-maroon-800 to-maroon-700 text-white overflow-hidden">
         <div class="absolute inset-0 opacity-5">
             <svg class="w-full h-full" viewBox="0 0 1200 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M14 16H9m10 0h3v-3.15a 1 1 0 0 0-.84-.99L16 11l-2.7-6.08A1 1 0 0 0 12.38 4H5.04a1 1 0 0 0-.96.71L2 11l2.9.97a1 1 0 0 1 .6.91V16" stroke="white" stroke-width="1.5" transform="translate(500, 250) scale(12)"/>
-                <circle cx="6.5" cy="16" r="2.5" stroke="white" stroke-width="1.5" transform="translate(500, 250) scale(12)"/>
-                <circle cx="17.5" cy="16" r="2.5" stroke="white" stroke-width="1.5" transform="translate(500, 250) scale(12)"/>
+                <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h1" stroke="white" stroke-width="1.5" transform="translate(500, 250) scale(12)"/>
+                <path d="M15 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 13.52 8H14" stroke="white" stroke-width="1.5" transform="translate(500, 250) scale(12)"/>
+                <circle cx="7.5" cy="18.5" r="2.5" stroke="white" stroke-width="1.5" transform="translate(500, 250) scale(12)"/>
+                <circle cx="17.5" cy="18.5" r="2.5" stroke="white" stroke-width="1.5" transform="translate(500, 250) scale(12)"/>
             </svg>
         </div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
@@ -127,7 +128,7 @@
                         <span class="text-2xl font-bold text-white">1</span>
                     </div>
                     <h3 class="text-xl font-semibold text-gray-900 mb-3">Enter Your Vehicle</h3>
-                    <p class="text-gray-600">Input your truck or bus dimensions — height, weight, width, and length. TruckNav uses these to find safe routes.</p>
+                    <p class="text-gray-600">Input your truck or bus dimensions, such as height, weight, width, and length. TruckNav uses these to find safe routes.</p>
                 </div>
 
                 <div class="text-center">
@@ -162,7 +163,7 @@
                         We believe every truck, bus, and coach driver deserves access to route planning that accounts for their vehicle's specific restrictions. That's why TruckNav is free to use.
                     </p>
                     <p class="text-lg text-gray-600 mb-6">
-                        Our road restriction data comes from the community — drivers like you who report low bridges, weight limits, and other hazards they encounter on the road.
+                        Our road restriction data comes from the community; drivers like you who report low bridges, weight limits, and other hazards they encounter on the road.
                     </p>
                     <div class="flex items-center gap-4">
                         <div class="text-center">
@@ -183,9 +184,10 @@
                 </div>
                 <div class="bg-maroon-100 rounded-2xl p-8 flex items-center justify-center min-h-[400px]">
                     <svg class="w-48 h-48 text-maroon-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                        <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-6.08A1 1 0 0 0 12.38 4H5.04a1 1 0 0 0-.96.71L2 11l2.9.97a1 1 0 0 1 .6.91V16"/>
-                        <circle cx="6.5" cy="16" r="2.5"/>
-                        <circle cx="17.5" cy="16" r="2.5"/>
+                        <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h1"/>
+                        <path d="M15 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 13.52 8H14"/>
+                        <circle cx="7.5" cy="18.5" r="2.5"/>
+                        <circle cx="17.5" cy="18.5" r="2.5"/>
                     </svg>
                 </div>
             </div>
