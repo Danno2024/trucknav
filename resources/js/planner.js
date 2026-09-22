@@ -616,10 +616,15 @@ function initSaveRoute() {
     }
 
     function openModal() {
-        nameInput.value = '';
+        const originInput = document.getElementById('origin-search');
+        const destInput = document.getElementById('destination-search');
+        const originName = originInput ? originInput.value.trim() : '';
+        const destName = destInput ? destInput.value.trim() : '';
+        nameInput.value = (originName && destName) ? `${originName} → ${destName}` : '';
         modalError.classList.add('hidden');
         modal.classList.remove('hidden');
         nameInput.focus();
+        nameInput.select();
     }
 
     function closeModal() {
