@@ -13,7 +13,15 @@ class ForumController extends Controller
     public function index()
     {
         $categories = ForumCategory::where('is_active', true)
+            ->with(['threads' => function ($q) {
+                $q->with('user')
+                    ->withCount('posts')
+                    ->orderByDesc('is_pinned')
+                    ->orderByDesc('last_post_at')
+                    ->limit(5);
+            }])
             ->withCount('threads')
+            ->withCount('posts as total_posts_count')
             ->orderBy('sort_order')
             ->get();
 
