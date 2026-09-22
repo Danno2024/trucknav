@@ -39,10 +39,10 @@
 
         <div class="mt-8 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
             <p class="text-sm text-gray-500">
-                &copy; {{ date('Y') }} Moorcam Development, Australia. All rights reserved.
+                &copy; {{ date('Y') }} <a href="https://www.moorcam.com.au" target="_blank">Moorcam Development</a>, Australia. All rights reserved.
             </p>
             <p class="text-sm text-gray-500 mt-2 md:mt-0">
-                Powered by Moorcam Development
+                Powered by <a href="https://www.moorcam.com.au" target="_blank">Moorcam Development</a>
             </p>
         </div>
     </div>

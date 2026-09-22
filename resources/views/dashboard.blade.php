@@ -15,7 +15,7 @@
                             <p class="text-sm text-gray-500">Plan your next safe route or manage your saved routes.</p>
                         </div>
                         <a href="{{ route('planner') }}" class="inline-flex items-center px-4 py-2 bg-maroon-700 border border-transparent rounded-lg font-semibold text-sm text-white hover:bg-maroon-800 focus:outline-none focus:ring-2 focus:ring-maroon-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                             </svg>
                             New Route
@@ -71,8 +71,8 @@
                                                     <span class="text-gray-400">{{ $route->created_at->diffForHumans() }}</span>
                                                 </div>
                                             </div>
-                                            <button onclick="event.preventDefault(); event.stopPropagation(); deleteRoute({{ $route->id }})" class="ml-4 text-red-400 hover:text-red-600 transition" title="Delete route">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                            <button onclick="event.preventDefault(); event.stopPropagation(); deleteRoute({{ $route->id }})" class="ml-4 text-red-400 hover:text-red-600 transition" title="Delete route" aria-label="Delete route {{ $route->name }}">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
                                             </button>
@@ -82,7 +82,7 @@
                             </div>
                         @else
                             <div class="text-center py-8">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                                 </svg>
                                 <h3 class="mt-2 text-sm font-medium text-gray-900">No saved routes yet</h3>

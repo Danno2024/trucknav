@@ -241,7 +241,8 @@ function initWaypointSearch() {
 
 function renderSuggestions(container, results, onSelect) {
     if (results.length === 0) {
-        container.classList.add('hidden');
+        container.innerHTML = '<div class="px-3 py-2 text-sm text-gray-400 italic">No results found</div>';
+        container.classList.remove('hidden');
         return;
     }
 
@@ -1209,7 +1210,7 @@ function initPrintRoute() {
     <div class="footer">
         <strong>TruckNav</strong> - Heavy Vehicle Route Planning for Australia<br>
         Drive safe. Check actual road conditions before travel.<br>
-        Powered by Moorcam
+        Powered by TruckNav
     </div>
 </body>
 </html>`;

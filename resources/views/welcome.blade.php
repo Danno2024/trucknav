@@ -206,8 +206,8 @@
                     </svg>
                     Make a Donation
                 </a>
-                <a href="{{ url('/#features') }}" class="inline-flex items-center justify-center px-8 py-3 border-2 border-white text-white font-semibold rounded-lg hover:bg-white/10 transition-colors text-lg">
-                    Leave a Review
+                <a href="{{ url('/planner') }}" class="inline-flex items-center justify-center px-8 py-3 border-2 border-white text-white font-semibold rounded-lg hover:bg-white/10 transition-colors text-lg">
+                    Plan a Route
                 </a>
             </div>
         </div>

@@ -56,9 +56,22 @@
                 width: 100%;
                 min-width: 100%;
                 max-height: 40vh;
+                transition: max-height 0.3s ease;
+            }
+            .planner-sidebar.collapsed {
+                max-height: 48px;
+                overflow: hidden;
             }
             .planner-map {
                 min-height: 60vh;
+            }
+            .sidebar-toggle {
+                display: flex;
+            }
+        }
+        @media (min-width: 769px) {
+            .sidebar-toggle {
+                display: none;
             }
         }
     </style>
@@ -66,7 +79,14 @@
     <div class="planner-layout">
         <div class="planner-sidebar">
             <div class="p-4">
-                <h1 class="text-lg font-bold text-gray-900 mb-4">Route Planner</h1>
+                <div class="flex items-center justify-between mb-4">
+                    <h1 class="text-lg font-bold text-gray-900">Route Planner</h1>
+                    <button type="button" class="sidebar-toggle items-center justify-center p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100" onclick="document.querySelector('.planner-sidebar').classList.toggle('collapsed')" aria-label="Toggle sidebar">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                </div>
 
                 <div class="mb-4">
                     <label for="origin-search" class="block text-sm font-medium text-gray-700 mb-1">Origin</label>
@@ -201,14 +221,14 @@
         </div>
 
         <div class="planner-map">
-            <div id="map"></div>
+            <div id="map" role="application" aria-label="Route planning map"></div>
         </div>
     </div>
 
-    <div id="save-modal" class="fixed inset-0 hidden" style="z-index: 10000;">
+    <div id="save-modal" class="fixed inset-0 hidden" style="z-index: 10000;" role="dialog" aria-modal="true" aria-labelledby="save-modal-title">
         <div class="absolute inset-0 bg-black/50" id="save-modal-backdrop"></div>
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-6 w-full max-w-md" style="z-index: 10001;">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">Save Route</h3>
+            <h3 id="save-modal-title" class="text-lg font-bold text-gray-900 mb-4">Save Route</h3>
             <div class="mb-4">
                 <label for="route-name-input" class="block text-sm font-medium text-gray-700 mb-1">Route Name</label>
                 <input type="text" id="route-name-input" placeholder="e.g. Melbourne to Bendigo"
@@ -228,10 +248,10 @@
         </div>
     </div>
 
-    <div id="hazard-modal" class="fixed inset-0 hidden" style="z-index: 10000;">
+    <div id="hazard-modal" class="fixed inset-0 hidden" style="z-index: 10000;" role="dialog" aria-modal="true" aria-labelledby="hazard-modal-title">
         <div class="absolute inset-0 bg-black/50" id="hazard-modal-backdrop"></div>
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-6 w-full max-w-md" style="z-index: 10001;">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">Report Hazard</h3>
+            <h3 id="hazard-modal-title" class="text-lg font-bold text-gray-900 mb-4">Report Hazard</h3>
             <div id="hazard-address-display" class="mb-3 text-sm text-gray-500 italic">Click on the map to set location...</div>
             <div class="mb-3">
                 <label for="hazard-type" class="block text-sm font-medium text-gray-700 mb-1">Hazard Type</label>
@@ -281,17 +301,17 @@
 
     <div id="print-container" class="hidden"></div>
 
-    <div id="review-modal" class="fixed inset-0 hidden" style="z-index: 10000;">
+    <div id="review-modal" class="fixed inset-0 hidden" style="z-index: 10000;" role="dialog" aria-modal="true" aria-labelledby="review-modal-title">
         <div class="absolute inset-0 bg-black/50" id="review-modal-backdrop"></div>
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-6 w-full max-w-md" style="z-index: 10001;">
-            <h3 class="text-lg font-bold text-gray-900 mb-1">How was your experience?</h3>
+            <h3 id="review-modal-title" class="text-lg font-bold text-gray-900 mb-1">How was your experience?</h3>
             <p class="text-sm text-gray-500 mb-4">Your feedback helps us improve TruckNav for all drivers.</p>
-            <div id="review-stars" class="flex gap-1 mb-4">
-                <button type="button" class="review-star text-3xl text-gray-300 hover:text-yellow-400 transition" data-rating="1">&#9733;</button>
-                <button type="button" class="review-star text-3xl text-gray-300 hover:text-yellow-400 transition" data-rating="2">&#9733;</button>
-                <button type="button" class="review-star text-3xl text-gray-300 hover:text-yellow-400 transition" data-rating="3">&#9733;</button>
-                <button type="button" class="review-star text-3xl text-gray-300 hover:text-yellow-400 transition" data-rating="4">&#9733;</button>
-                <button type="button" class="review-star text-3xl text-gray-300 hover:text-yellow-400 transition" data-rating="5">&#9733;</button>
+            <div id="review-stars" class="flex gap-1 mb-4" role="radiogroup" aria-label="Rating">
+                <button type="button" class="review-star text-3xl text-gray-300 hover:text-yellow-400 transition" data-rating="1" role="radio" aria-checked="false" aria-label="1 star">&#9733;</button>
+                <button type="button" class="review-star text-3xl text-gray-300 hover:text-yellow-400 transition" data-rating="2" role="radio" aria-checked="false" aria-label="2 stars">&#9733;</button>
+                <button type="button" class="review-star text-3xl text-gray-300 hover:text-yellow-400 transition" data-rating="3" role="radio" aria-checked="false" aria-label="3 stars">&#9733;</button>
+                <button type="button" class="review-star text-3xl text-gray-300 hover:text-yellow-400 transition" data-rating="4" role="radio" aria-checked="false" aria-label="4 stars">&#9733;</button>
+                <button type="button" class="review-star text-3xl text-gray-300 hover:text-yellow-400 transition" data-rating="5" role="radio" aria-checked="false" aria-label="5 stars">&#9733;</button>
             </div>
             <div class="mb-4">
                 <label for="review-comment" class="block text-sm font-medium text-gray-700 mb-1">Comments (optional)</label>
@@ -319,8 +339,5 @@
         window.__reportRestrictionUrl = '{{ url("/planner/report-restriction") }}';
         window.__reviewUrl = '{{ url("/reviews") }}';
         window.__savedRoute = {!! $savedRoute ? json_encode($savedRoute) : 'null' !!};
-        console.log('[TruckNav] Restrictions from server:', window.__restrictions.length, window.__restrictions);
-        console.log('[TruckNav] Save URL:', window.__saveUrl);
-        console.log('[TruckNav] Saved route to load:', window.__savedRoute ? window.__savedRoute.name : 'none');
     </script>
 </x-app-layout>

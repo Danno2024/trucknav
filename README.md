@@ -103,7 +103,7 @@ This project is currently in active development. The public-facing website and a
 - [x] Phase 4: Road restrictions (user-reported hazards)
 - [x] Phase 5: Dashboard and saved routes
 - [x] Phase 6: PayPal donations and review system
-- [ ] Phase 7: Polish and deployment
+- [x] Phase 7: Polish and deployment
 
 ## Contributing
 
