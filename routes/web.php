@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AdminLoginController;
 use App\Http\Controllers\Admin\DonationController;
 use App\Http\Controllers\Admin\RestrictionController;
 use App\Http\Controllers\Admin\ReviewController;
@@ -47,6 +48,12 @@ Route::get('/donate/cancel', [PublicDonationController::class, 'paypalCancel'])-
 
 Route::middleware('auth')->group(function () {
     Route::post('/reviews', [PublicReviewController::class, 'store'])->name('reviews.store');
+});
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/login', [AdminLoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AdminLoginController::class, 'login'])->name('login.submit');
+    Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
 });
 
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
