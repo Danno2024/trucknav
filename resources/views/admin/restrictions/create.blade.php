@@ -18,15 +18,14 @@
                         class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm" required>
                 </div>
 
-                <div>
-                    <label for="latitude" class="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
-                    <input id="latitude" type="number" step="any" name="latitude" value="{{ old('latitude') }}" placeholder="e.g. -37.8256"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm" required>
-                </div>
-                <div>
-                    <label for="longitude" class="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
-                    <input id="longitude" type="number" step="any" name="longitude" value="{{ old('longitude') }}" placeholder="e.g. 144.9584"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm" required>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                    <x-map-picker mode="single" id="restriction-map"
+                        latName="latitude" lngName="longitude"
+                        :lat="old('latitude')" :lng="old('longitude')" />
+                    @error('latitude')
+                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div>

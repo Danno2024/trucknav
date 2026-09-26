@@ -38,30 +38,22 @@
                     <input id="destination_address" type="text" name="destination_address" value="{{ old('destination_address') }}"
                         class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm" required>
                 </div>
+            </div>
 
-                <div>
-                    <label for="origin_lat" class="block text-sm font-medium text-gray-700 mb-1">Origin Lat</label>
-                    <input id="origin_lat" type="number" step="any" name="origin_lat" value="{{ old('origin_lat') }}"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm" required>
-                </div>
-                <div>
-                    <label for="origin_lng" class="block text-sm font-medium text-gray-700 mb-1">Origin Lng</label>
-                    <input id="origin_lng" type="number" step="any" name="origin_lng" value="{{ old('origin_lng') }}"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm" required>
-                </div>
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Origin &amp; Destination Locations</label>
+                <x-map-picker mode="dual" id="route-map"
+                    :originLat="old('origin_lat')" :originLng="old('origin_lng')"
+                    :destinationLat="old('destination_lat')" :destinationLng="old('destination_lng')" />
+                @error('origin_lat')
+                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                @enderror
+                @error('destination_lat')
+                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
 
-                <div>
-                    <label for="destination_lat" class="block text-sm font-medium text-gray-700 mb-1">Destination Lat</label>
-                    <input id="destination_lat" type="number" step="any" name="destination_lat" value="{{ old('destination_lat') }}"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm" required>
-                </div>
-                <div>
-                    <label for="destination_lng" class="block text-sm font-medium text-gray-700 mb-1">Destination Lng</label>
-                    <input id="destination_lng" type="number" step="any" name="destination_lng" value="{{ old('destination_lng') }}"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm" required>
-                </div>
-
-                <div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <label for="total_distance_km" class="block text-sm font-medium text-gray-700 mb-1">Distance (km) <span class="text-gray-400 font-normal">— optional</span></label>
                     <input id="total_distance_km" type="number" step="any" min="0" name="total_distance_km" value="{{ old('total_distance_km') }}"
                         class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
