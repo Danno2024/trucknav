@@ -8,6 +8,7 @@
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Search routes..."
                 class="border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm">
             <button type="submit" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition">Search</button>
+            <a href="{{ route('admin.routes.create') }}" class="px-4 py-2 bg-maroon-700 text-white rounded-lg text-sm font-medium hover:bg-maroon-800 transition whitespace-nowrap">Add Route</a>
         </form>
     </div>
 

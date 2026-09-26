@@ -84,12 +84,16 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
     Route::get('/restrictions', [RestrictionController::class, 'index'])->name('restrictions.index');
+    Route::get('/restrictions/create', [RestrictionController::class, 'create'])->name('restrictions.create');
+    Route::post('/restrictions', [RestrictionController::class, 'store'])->name('restrictions.store');
     Route::get('/restrictions/{restriction}', [RestrictionController::class, 'show'])->name('restrictions.show');
     Route::put('/restrictions/{restriction}', [RestrictionController::class, 'update'])->name('restrictions.update');
     Route::post('/restrictions/{restriction}/verify', [RestrictionController::class, 'verify'])->name('restrictions.verify');
     Route::delete('/restrictions/{restriction}', [RestrictionController::class, 'destroy'])->name('restrictions.destroy');
 
     Route::get('/routes', [SavedRouteController::class, 'index'])->name('routes.index');
+    Route::get('/routes/create', [SavedRouteController::class, 'create'])->name('routes.create');
+    Route::post('/routes', [SavedRouteController::class, 'store'])->name('routes.store');
     Route::get('/routes/{route}/edit', [SavedRouteController::class, 'edit'])->name('routes.edit');
     Route::put('/routes/{route}', [SavedRouteController::class, 'update'])->name('routes.update');
     Route::delete('/routes/{route}', [SavedRouteController::class, 'destroy'])->name('routes.destroy');

@@ -23,6 +23,7 @@
                 <option value="unverified" {{ request('status') === 'unverified' ? 'selected' : '' }}>Unverified</option>
             </select>
             <button type="submit" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition">Filter</button>
+            <a href="{{ route('admin.restrictions.create') }}" class="px-4 py-2 bg-maroon-700 text-white rounded-lg text-sm font-medium hover:bg-maroon-800 transition whitespace-nowrap">Add Restriction</a>
         </form>
     </div>
 
