@@ -72,6 +72,16 @@
                     @csrf
                     @method('PUT')
                     <div class="mb-3">
+                        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                        <input id="address" type="text" name="address" value="{{ old('address', $restriction->address) }}" class="w-full border-gray-300 rounded-lg shadow-sm text-sm" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                        <x-map-picker mode="single" id="restriction-map"
+                            latName="latitude" lngName="longitude"
+                            :lat="old('latitude', $restriction->latitude)" :lng="old('longitude', $restriction->longitude)" />
+                    </div>
+                    <div class="mb-3">
                         <label for="restriction_type" class="block text-sm font-medium text-gray-700 mb-1">Type</label>
                         <select id="restriction_type" name="restriction_type" class="w-full border-gray-300 rounded-lg shadow-sm text-sm">
                             <option value="low_bridge" {{ $restriction->restriction_type === 'low_bridge' ? 'selected' : '' }}>Low Bridge</option>

@@ -30,31 +30,22 @@
                     <input id="destination_address" type="text" name="destination_address" value="{{ old('destination_address', $route->destination_address) }}"
                         class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm" required>
                 </div>
-
-                <div>
-                    <label for="origin_lat" class="block text-sm font-medium text-gray-700 mb-1">Origin Lat</label>
-                    <input id="origin_lat" type="number" step="any" name="origin_lat" value="{{ old('origin_lat', $route->origin_lat) }}"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm" required>
-                </div>
-                <div>
-                    <label for="origin_lng" class="block text-sm font-medium text-gray-700 mb-1">Origin Lng</label>
-                    <input id="origin_lng" type="number" step="any" name="origin_lng" value="{{ old('origin_lng', $route->origin_lng) }}"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm" required>
-                </div>
-
-                <div>
-                    <label for="destination_lat" class="block text-sm font-medium text-gray-700 mb-1">Destination Lat</label>
-                    <input id="destination_lat" type="number" step="any" name="destination_lat" value="{{ old('destination_lat', $route->destination_lat) }}"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm" required>
-                </div>
-                <div>
-                    <label for="destination_lng" class="block text-sm font-medium text-gray-700 mb-1">Destination Lng</label>
-                    <input id="destination_lng" type="number" step="any" name="destination_lng" value="{{ old('destination_lng', $route->destination_lng) }}"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-maroon-500 focus:ring-maroon-500 text-sm" required>
-                </div>
             </div>
 
-            <h3 class="text-sm font-semibold text-gray-900 mb-3 border-t border-gray-100 pt-4">Vehicle Profile</h3>
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Origin &amp; Destination Locations</label>
+                <x-map-picker mode="dual" id="route-map"
+                    :originLat="old('origin_lat', $route->origin_lat)" :originLng="old('origin_lng', $route->origin_lng)"
+                    :destinationLat="old('destination_lat', $route->destination_lat)" :destinationLng="old('destination_lng', $route->destination_lng)" />
+                @error('origin_lat')
+                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                @enderror
+                @error('destination_lat')
+                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>

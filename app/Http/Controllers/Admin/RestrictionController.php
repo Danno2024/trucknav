@@ -80,6 +80,9 @@ class RestrictionController extends Controller
     {
         $validated = $request->validate([
             'restriction_type' => 'required|in:low_bridge,height_limit,weight_limit,width_limit,road_ban,rough_road,other',
+            'address' => 'required|string|max:255',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
             'severity' => 'required|in:low,medium,high,critical',
             'status' => 'required|in:active,inactive',
             'description' => 'nullable|string',
