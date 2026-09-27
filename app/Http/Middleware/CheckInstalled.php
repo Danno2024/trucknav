@@ -15,6 +15,10 @@ class CheckInstalled
             return $next($request);
         }
 
+        if (! Installer::isInstalled()) {
+            Installer::ensureEnvAndKey();
+        }
+
         $installed = Installer::isInstalled();
         $isInstallRoute = $request->is('install*');
 

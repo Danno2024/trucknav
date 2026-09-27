@@ -18,6 +18,29 @@ class Installer
     }
 
     /**
+     * Ensure an APP_KEY exists before anything needs encryption
+     * (cookies, sessions, CSRF). Persists to .env when writable;
+     * otherwise sets a runtime-only key so the installer can still
+     * render (the requirements step will flag the unwritable .env).
+     */
+    public static function ensureEnvAndKey(): void
+    {
+        if (! empty(config('app.key'))) {
+            return;
+        }
+
+        $key = 'base64:'.base64_encode(random_bytes(32));
+
+        try {
+            self::writeEnv(['APP_KEY' => $key]);
+        } catch (\Throwable $e) {
+            // .env not writable yet — runtime key only.
+        }
+
+        config(['app.key' => $key]);
+    }
+
+    /**
      * Server requirements checklist. Each item: ['label', 'pass', 'hint'].
      */
     public static function requirements(): array
