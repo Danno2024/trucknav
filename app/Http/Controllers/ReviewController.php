@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ReviewThanksMail;
 use App\Models\Review;
+use App\Support\SiteMail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +32,8 @@ class ReviewController extends Controller
         $validated['platform'] = $validated['platform'] ?? 'app';
 
         $review = Review::create($validated);
+
+        SiteMail::sendIfEnabled('email_review', new ReviewThanksMail($review), Auth::user());
 
         return response()->json([
             'success' => true,

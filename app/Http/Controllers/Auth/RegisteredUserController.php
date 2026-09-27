@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\WelcomeMail;
 use App\Models\User;
+use App\Support\SiteMail;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -43,6 +45,8 @@ class RegisteredUserController extends Controller
         ]);
 
         event(new Registered($user));
+
+        SiteMail::sendIfEnabled('email_welcome', new WelcomeMail($user), $user);
 
         Auth::login($user);
 

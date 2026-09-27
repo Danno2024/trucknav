@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\RestrictionReportedMail;
+use App\Mail\RouteSavedMail;
 use App\Models\RoadRestriction;
 use App\Models\SavedRoute;
+use App\Support\SiteMail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -60,6 +63,8 @@ class PlannerController extends Controller
         $validated['user_id'] = Auth::id();
 
         $route = SavedRoute::create($validated);
+
+        SiteMail::sendIfEnabled('email_route_saved', new RouteSavedMail($route), Auth::user());
 
         return response()->json([
             'success' => true,
@@ -135,6 +140,8 @@ class PlannerController extends Controller
         $validated['status'] = 'active';
 
         $restriction = RoadRestriction::create($validated);
+
+        SiteMail::sendIfEnabled('email_restriction_reported', new RestrictionReportedMail($restriction), Auth::user());
 
         return response()->json([
             'success' => true,

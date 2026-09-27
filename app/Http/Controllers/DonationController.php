@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\DonationThanksMail;
 use App\Models\Donation;
+use App\Support\SiteMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -51,9 +53,14 @@ class DonationController extends Controller
     {
         $donationId = $request->query('custom');
         if ($donationId) {
-            Donation::where('id', $donationId)
+            $donation = Donation::where('id', $donationId)
                 ->where('user_id', Auth::id())
-                ->update(['status' => 'completed']);
+                ->first();
+
+            if ($donation) {
+                $donation->update(['status' => 'completed']);
+                SiteMail::sendIfEnabled('email_donation', new DonationThanksMail($donation), Auth::user());
+            }
         }
 
         return redirect()->route('donate')->with('success', 'Thank you for your generous donation!');

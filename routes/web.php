@@ -142,6 +142,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::put('/settings/system', [SettingsController::class, 'updateSystem'])->name('settings.system.update');
     Route::get('/settings/paypal', [SettingsController::class, 'paypal'])->name('settings.paypal');
     Route::put('/settings/paypal', [SettingsController::class, 'updatePaypal'])->name('settings.paypal.update');
+    Route::get('/settings/email', [SettingsController::class, 'email'])->name('settings.email');
+    Route::put('/settings/email', [SettingsController::class, 'updateEmail'])->name('settings.email.update');
+    Route::post('/settings/email/test', [SettingsController::class, 'testEmail'])->name('settings.email.test');
 });
 
 require __DIR__.'/auth.php';
