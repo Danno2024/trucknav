@@ -11,10 +11,22 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DonationController as PublicDonationController;
 use App\Http\Controllers\ForumController;
+use App\Http\Controllers\InstallController;
 use App\Http\Controllers\PlannerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController as PublicReviewController;
 use Illuminate\Support\Facades\Route;
+
+Route::prefix('install')->name('install.')->group(function () {
+    Route::get('/', [InstallController::class, 'welcome'])->name('welcome');
+    Route::get('/database', [InstallController::class, 'showDatabase'])->name('database');
+    Route::post('/database', [InstallController::class, 'storeDatabase'])->name('database.store');
+    Route::get('/settings', [InstallController::class, 'showSettings'])->name('settings');
+    Route::post('/settings', [InstallController::class, 'storeSettings'])->name('settings.store');
+    Route::get('/admin', [InstallController::class, 'showAdmin'])->name('admin');
+    Route::post('/admin', [InstallController::class, 'storeAdmin'])->name('admin.store');
+    Route::get('/complete', [InstallController::class, 'complete'])->name('complete');
+});
 
 Route::get('/', function () {
     return view('welcome');
