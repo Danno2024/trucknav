@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Setting;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -15,6 +16,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Keep indexed varchar columns within MySQL's 1000-byte key limit
+        // on older MySQL/MariaDB with utf8mb4 (common on shared hosting).
+        Schema::defaultStringLength(191);
+
         View::composer('auth.*', function ($view) {
             $view->with('maintenanceMode', Setting::getBool('maintenance_mode'));
             $view->with('maintenanceMessage', Setting::get('maintenance_message', 'We are currently performing scheduled maintenance. Please check back soon.'));
