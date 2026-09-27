@@ -11,7 +11,14 @@ class Setting extends Model
 
     protected static function tableExists(): bool
     {
-        return Schema::hasTable('settings');
+        // Any connection failure (missing SQLite file, unreachable host,
+        // migrations not run yet) means "no settings" — never throw,
+        // so pre-install boot and maintenance checks stay safe.
+        try {
+            return Schema::hasTable('settings');
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     public static function get(string $key, $default = null)
