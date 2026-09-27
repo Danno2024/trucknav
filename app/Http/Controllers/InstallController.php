@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Support\Installer;
 use Database\Seeders\ForumCategorySeeder;
+use Database\Seeders\ForumDemoSeeder;
 use Database\Seeders\RoadRestrictionSeeder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -135,10 +136,8 @@ class InstallController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'password' => 'required|string|min:8|confirmed',
+            'site_content' => 'required|in:demo,blank',
         ]);
-
-        (new RoadRestrictionSeeder)->run();
-        (new ForumCategorySeeder)->run();
 
         User::updateOrCreate(
             ['email' => $validated['email']],
@@ -150,6 +149,14 @@ class InstallController extends Controller
                 'email_verified_at' => now(),
             ]
         );
+
+        // Forum categories are structural — always seeded so the forum works.
+        (new ForumCategorySeeder)->run();
+
+        if ($validated['site_content'] === 'demo') {
+            (new RoadRestrictionSeeder)->run();
+            (new ForumDemoSeeder)->run();
+        }
 
         return redirect()->route('install.complete');
     }
